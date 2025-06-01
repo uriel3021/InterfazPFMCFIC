@@ -1,5 +1,39 @@
 ﻿@page
-@model ActoFormModel
+@model SeguimientoSolicitudModel
 
-<h2>Formulario protegido</h2>
-<p>ActoID recibido: @Model.ActoID</p>
+<h2>Confirmaciones de Envío para ActoID @Model.ActoID</h2>
+
+@if (Model.Confirmaciones.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ConfirmacionId</th>
+                <th>SolictudPfmcficid</th>
+                <th>TipoConfirmacion</th>
+                <th>FechaRegistro</th>
+                <th>CodigoRetorno</th>
+                <th>Mensaje</th>
+                <th>FolioConfirmacionCfic</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Confirmaciones)
+            {
+                <tr>
+                    <td>@item.ConfirmacionId</td>
+                    <td>@item.SolictudPfmcficid</td>
+                    <td>@item.TipoConfirmacion</td>
+                    <td>@item.FechaRegistro?.ToString("g")</td>
+                    <td>@item.CodigoRetorno</td>
+                    <td>@item.Mensaje</td>
+                    <td>@item.FolioConfirmacionCfic</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No hay confirmaciones de envío para este ActoID.</p>
+}
