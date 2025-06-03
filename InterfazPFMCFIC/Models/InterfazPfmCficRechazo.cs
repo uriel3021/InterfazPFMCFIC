@@ -26,4 +26,6 @@ public partial class InterfazPfmCficRechazo
     public DateTime? FechaActualizacionDelta { get; set; }
 
     public bool? Borrado { get; set; }
+
+    public virtual InterfazPfmCficSolicitud? SolictudPfmcfic { get; set; }
 }

@@ -6,7 +6,7 @@ using InterfazPFMCFIC.Models;
 
 public class EfRepository<T> : RepositoryBase<T> where T : class
 {
-    public EfRepository(AppDbContext dbContext) : base(dbContext)
+    public EfRepository(DbInterfazPfmcficContext dbContext) : base(dbContext)
     {
     }
 }

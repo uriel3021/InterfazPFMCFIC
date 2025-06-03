@@ -2,6 +2,7 @@
 @model SeguimientoSolicitudModel
 @{
     ViewData["OcultarMenu"] = true;
+  
 }
 <h3>Seguimiento de Solicitud</h3>
 <br />
@@ -23,7 +24,18 @@
                     <td>@item.Estatus</td>
                     <td>@item.Fecha?.ToString("dd/MM/yyyy")</td>
                     <td>@item.Folio</td>
-                    <td>@item.Archivo</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.Archivo) && item.ArchivoId > 0)
+                        {
+                            <a asp-page-handler="DescargarArchivo"
+                               asp-route-archivoId="@item.ArchivoId"
+                               target="_blank"
+                               title="Descargar PDF">
+                                <i class="fa fa-file-pdf-o"></i> @item.Archivo
+                            </a>
+
+                        }
+                    </td>
                 </tr>
             }
         </tbody>
@@ -53,5 +65,6 @@ else
     <p>No hay confirmaciones de envío para este ActoID.</p>
 }
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

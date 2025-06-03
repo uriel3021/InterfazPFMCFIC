@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace InterfazPFMCFIC.Models;
 
-public partial class InterfazPfmCficConfirmacionRecepcion
+public partial class InterfazPfmPfmCficConfirmacionRecepcion
 {
     public int ConfirmacionId { get; set; }
 
@@ -20,4 +20,6 @@ public partial class InterfazPfmCficConfirmacionRecepcion
     public string? Mensaje { get; set; }
 
     public long? FolioConfirmacionPfm { get; set; }
+
+    public virtual InterfazPfmCficSolicitud? SolictudPfmcfic { get; set; }
 }

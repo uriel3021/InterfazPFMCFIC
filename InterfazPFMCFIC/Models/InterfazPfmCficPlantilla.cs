@@ -3,17 +3,15 @@ using System.Collections.Generic;
 
 namespace InterfazPFMCFIC.Models;
 
-public partial class InterfazPfmCficDelito
+public partial class InterfazPfmCficPlantilla
 {
-    public int DelitoCficpfmid { get; set; }
+    public int PlantillaId { get; set; }
 
-    public int? SolictudPfmcficid { get; set; }
+    public string? Nombre { get; set; }
 
-    public int? TipoDelito { get; set; }
+    public string? Ruta { get; set; }
 
-    public int? ClasificacionDelito { get; set; }
-
-    public bool? EsPrincipal { get; set; }
+    public int? CatTipoProductoId { get; set; }
 
     public string? UsuarioId { get; set; }
 

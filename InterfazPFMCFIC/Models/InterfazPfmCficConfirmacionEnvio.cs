@@ -18,4 +18,6 @@ public partial class InterfazPfmCficConfirmacionEnvio
     public string? Mensaje { get; set; }
 
     public long? FolioConfirmacionCfic { get; set; }
+
+    public virtual InterfazPfmCficSolicitud? SolictudPfmcfic { get; set; }
 }

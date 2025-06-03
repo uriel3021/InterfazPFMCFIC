@@ -6,6 +6,9 @@ public class ConfirmacionEnvioTablaViewModel
     public DateTime? Fecha { get; set; }
     public long? Folio { get; set; }
     public string? Archivo { get; set; }
+    public int ArchivoId { get; set; }
+
+
 }
 
 public enum EstatusEnvio

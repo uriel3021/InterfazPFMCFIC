@@ -7,12 +7,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 public class SeguimientoSolicitudModel : PageModel
 {
-    private readonly IRepositoryBase<InterfazPfmCficConfirmacionEnvio> _repo;
+    private readonly IRepositoryBase<InterfazPfmCficArchivo> _repoArchivo;
     private readonly IRepositoryBase<InterfazPfmCficSolicitud> _repoSolicitud;
 
-    public SeguimientoSolicitudModel(IRepositoryBase<InterfazPfmCficConfirmacionEnvio> repo, IRepositoryBase<InterfazPfmCficSolicitud> repoSolicitud)
+    public SeguimientoSolicitudModel(IRepositoryBase<InterfazPfmCficArchivo> repoArchivo, IRepositoryBase<InterfazPfmCficSolicitud> repoSolicitud)
     {
-        _repo = repo;
+        _repoArchivo = repoArchivo;
         _repoSolicitud = repoSolicitud;
     }
 
@@ -31,25 +31,58 @@ public class SeguimientoSolicitudModel : PageModel
     {
         // Obtener todos los registros para el ActoID
         var spec = new ConfirmacionSolicitudPorActoIdSpec(ActoID);
-        var todas = await _repoSolicitud.ListAsync(spec);
+        var solicitud = await _repoSolicitud.ListAsync(spec);
+
+        //Obtengo el archivo asociado
+       // var specArchivo = new ConfirmacionArchivoPorIdSpec(solicitud.FirstOrDefault().SolicitudPfmcficid);
+        //var archivo = await _repoArchivo.FirstOrDefaultAsync(specArchivo);
 
         // Calcular paginación
-        int totalRegistros = todas.Count;
+        int totalRegistros = solicitud.Count;
         TotalPaginas = (int)Math.Ceiling(totalRegistros / (double)RegistrosPorPagina);
 
         // Obtener solo los registros de la página actual
-        var paginaActual = todas
+        var paginaActual = solicitud
             .Skip((Pagina - 1) * RegistrosPorPagina)
             .Take(RegistrosPorPagina)
             .ToList();
-        /*
-        Confirmaciones = paginaActual.Select(e => new ConfirmacionEnvioTablaViewModel
+
+        // Para cada solicitud, busca su archivo asociado
+        Confirmaciones = new List<ConfirmacionEnvioTablaViewModel>();
+        foreach (var e in paginaActual)
         {
-            Estatus = e.TipoConfirmacion.HasValue ? (EstatusEnvio?)e.TipoConfirmacion.Value : null,
-            Fecha = e.FechaRegistro,
-            Folio = e.FolioConfirmacionCfic,
-            Archivo = ""
-        }).ToList();
-        */
+            var specArchivo = new ConfirmacionArchivoPorIdSpec(e.SolicitudPfmcficid);
+            var archivo = await _repoArchivo.FirstOrDefaultAsync(specArchivo);
+
+            Confirmaciones.Add(new ConfirmacionEnvioTablaViewModel
+            {
+                Estatus = e.InterfazPfmCficConfirmacionEnvios.FirstOrDefault()?.TipoConfirmacion.HasValue == true
+                    ? (EstatusEnvio?)e.InterfazPfmCficConfirmacionEnvios.FirstOrDefault().TipoConfirmacion.Value
+                    : null,
+                Fecha = e.InterfazPfmCficConfirmacionEnvios.FirstOrDefault()?.FechaRegistro,
+                Folio = e.InterfazPfmCficConfirmacionEnvios.FirstOrDefault()?.FolioConfirmacionCfic,
+                ArchivoId = archivo?.ArchivoId ?? 0,
+                Archivo = archivo != null ? Path.GetFileName(archivo.Ruta) : null
+            });
+        }
+
     }
+
+    public async Task<IActionResult> OnGetDescargarArchivoAsync(int archivoId)
+    {
+        var archivo = await _repoArchivo.GetByIdAsync(archivoId);
+        if (archivo == null || string.IsNullOrEmpty(archivo.Ruta) || !System.IO.File.Exists(archivo.Ruta))
+            return NotFound();
+
+        var contentType = "application/pdf";
+        var nombreArchivo = archivo.NombreArchivo ?? Path.GetFileName(archivo.Ruta);
+        return PhysicalFile(archivo.Ruta, contentType, nombreArchivo);
+    }
+
+    /*
+    public async Task<IActionResult> OnGetDescargarArchivo()
+    {
+       return Content($"Handler invocado correctamente con archivoId");
+    }
+    */
 }

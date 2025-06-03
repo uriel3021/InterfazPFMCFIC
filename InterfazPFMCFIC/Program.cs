@@ -50,7 +50,7 @@ builder.Services.AddCors(options =>
 });
 
 // Configura el DbContext usando la cadena de conexión del archivo de configuración
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<DbInterfazPfmcficContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped(typeof(IRepositoryBase<>), typeof(EfRepository<>));
@@ -61,9 +61,8 @@ var app = builder.Build();
 
 app.UseCors(); // Habilita CORS con la política por defecto
 
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapRazorPages();
-
 app.Run();

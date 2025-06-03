@@ -5,49 +5,47 @@ namespace InterfazPFMCFIC.Models;
 
 public partial class InterfazPfmCficSolicitud
 {
-    public int SolictudPfmcficid { get; set; }
+    public int SolicitudPfmcficid { get; set; }
 
     public int? ActoId { get; set; }
 
-    public int? SoliictudIdbts { get; set; }
-
-    public int? CatMandamientoId { get; set; }
-
-    public int? CatEstatusSolicitudId { get; set; }
-
-    public int? SubAreaOrigenId { get; set; }
-
-    public int? CatTipoExpedienteId { get; set; }
-
-    public string? OficioRemision { get; set; }
-
-    public int? CatTipoProductoId { get; set; }
-
-    public string? NumeroExpediente { get; set; }
+    public string? Oficio { get; set; }
 
     public DateTime? FechaOficio { get; set; }
-
-    public DateTime? FechaRecepcion { get; set; }
 
     public DateTime? FechaTermino { get; set; }
 
     public bool? ConDetenido { get; set; }
 
-    public string? NombreAutoridad { get; set; }
+    public int? CatTipoProductoId { get; set; }
+
+    public int? CatTipoEnvioId { get; set; }
 
     public string? Observaciones { get; set; }
 
-    public int? AnioFolioSiga { get; set; }
+    public DateTime? FechaSistema { get; set; }
 
-    public long? NumeroFolioSiga { get; set; }
+    public int? CatEstatusSolicitudId { get; set; }
 
-    public bool? TieneAnexos { get; set; }
+    public int? PersonalId { get; set; }
 
-    public bool? Borrado { get; set; }
+    public int? CatTipoMandamientoId { get; set; }
+
+    public int? AdscripcionId { get; set; }
 
     public string? UsuarioId { get; set; }
 
     public DateTime? FechaAltaDelta { get; set; }
 
     public DateTime? FechaActualizacionDelta { get; set; }
+
+    public bool? Borrado { get; set; }
+
+    public virtual ICollection<InterfazPfmCficCancelacione> InterfazPfmCficCancelaciones { get; set; } = new List<InterfazPfmCficCancelacione>();
+
+    public virtual ICollection<InterfazPfmCficConfirmacionEnvio> InterfazPfmCficConfirmacionEnvios { get; set; } = new List<InterfazPfmCficConfirmacionEnvio>();
+
+    public virtual ICollection<InterfazPfmCficRechazo> InterfazPfmCficRechazos { get; set; } = new List<InterfazPfmCficRechazo>();
+
+    public virtual ICollection<InterfazPfmPfmCficConfirmacionRecepcion> InterfazPfmPfmCficConfirmacionRecepcions { get; set; } = new List<InterfazPfmPfmCficConfirmacionRecepcion>();
 }
