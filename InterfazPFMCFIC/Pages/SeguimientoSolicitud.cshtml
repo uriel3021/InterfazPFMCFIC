@@ -2,9 +2,11 @@
 @model SeguimientoSolicitudModel
 @{
     ViewData["OcultarMenu"] = true;
-  
 }
+
+
 <h3>Seguimiento de Solicitud</h3>
+
 <br />
 @if (Model.Confirmaciones.Any())
 {
@@ -24,16 +26,24 @@
                     <td>@item.Estatus</td>
                     <td>@item.Fecha?.ToString("dd/MM/yyyy")</td>
                     <td>@item.Folio</td>
-                    <td>
-                        @if (!string.IsNullOrEmpty(item.Archivo) && item.ArchivoId > 0)
+                    <td style="text-align:center;">
+                        @if (!string.IsNullOrEmpty(item.ArchivoNombre) && item.ArchivoId > 0)
                         {
                             <a asp-page-handler="DescargarArchivo"
                                asp-route-archivoId="@item.ArchivoId"
+                               asp-route-ticks="@DateTime.UtcNow.Ticks"
                                target="_blank"
-                               title="Descargar PDF">
-                                <i class="fa fa-file-pdf-o"></i> @item.Archivo
+                               title="Descargar PDF"
+                               style="text-decoration:none;">
+                                <i class="fa-solid fa-file-pdf" style="color:#d32f2f; font-size:1.5em;"></i>
+                               
                             </a>
-
+                        }
+                        else
+                        {
+                            <span style="color: #ccc;">
+                                <i class="fa-solid fa-file-pdf"  style="font-size:1.5em;"></i>
+                            </span>
                         }
                     </td>
                 </tr>

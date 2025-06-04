@@ -9,11 +9,17 @@ public class SeguimientoSolicitudModel : PageModel
 {
     private readonly IRepositoryBase<InterfazPfmCficArchivo> _repoArchivo;
     private readonly IRepositoryBase<InterfazPfmCficSolicitud> _repoSolicitud;
+    private readonly IConfiguration _configuration;
 
-    public SeguimientoSolicitudModel(IRepositoryBase<InterfazPfmCficArchivo> repoArchivo, IRepositoryBase<InterfazPfmCficSolicitud> repoSolicitud)
+    public SeguimientoSolicitudModel(
+        IRepositoryBase<InterfazPfmCficArchivo> repoArchivo, 
+        IRepositoryBase<InterfazPfmCficSolicitud> repoSolicitud,
+        IConfiguration configuration)
     {
         _repoArchivo = repoArchivo;
         _repoSolicitud = repoSolicitud;
+        _configuration = configuration;
+
     }
 
     [BindProperty(SupportsGet = true)]
@@ -48,11 +54,20 @@ public class SeguimientoSolicitudModel : PageModel
             .ToList();
 
         // Para cada solicitud, busca su archivo asociado
+        // ...
         Confirmaciones = new List<ConfirmacionEnvioTablaViewModel>();
         foreach (var e in paginaActual)
         {
             var specArchivo = new ConfirmacionArchivoPorIdSpec(e.SolicitudPfmcficid);
             var archivo = await _repoArchivo.FirstOrDefaultAsync(specArchivo);
+
+            string? nombre = null;
+            string? extension = null;
+            if (archivo != null && !string.IsNullOrEmpty(archivo.NombreArchivo))
+            {
+                nombre = Path.GetFileNameWithoutExtension(archivo.NombreArchivo);
+                extension = Path.GetExtension(archivo.NombreArchivo);
+            }
 
             Confirmaciones.Add(new ConfirmacionEnvioTablaViewModel
             {
@@ -62,21 +77,42 @@ public class SeguimientoSolicitudModel : PageModel
                 Fecha = e.InterfazPfmCficConfirmacionEnvios.FirstOrDefault()?.FechaRegistro,
                 Folio = e.InterfazPfmCficConfirmacionEnvios.FirstOrDefault()?.FolioConfirmacionCfic,
                 ArchivoId = archivo?.ArchivoId ?? 0,
-                Archivo = archivo != null ? Path.GetFileName(archivo.Ruta) : null
+                ArchivoNombre = nombre,
+                ArchivoExtension = extension
             });
         }
 
     }
 
-    public async Task<IActionResult> OnGetDescargarArchivoAsync(int archivoId)
+    public async Task<IActionResult> OnGetDescargarArchivoAsync(int archivoId, long ticks)
     {
         var archivo = await _repoArchivo.GetByIdAsync(archivoId);
-        if (archivo == null || string.IsNullOrEmpty(archivo.Ruta) || !System.IO.File.Exists(archivo.Ruta))
+        if (archivo == null || string.IsNullOrEmpty(archivo.Ruta))
+            return NotFound();
+
+        var rutaBase = _configuration["Archivos:RutaBase"];
+        var extension = _configuration["Archivos:Extension"];
+
+        // Solo agrega la extensión si no la tiene
+        string rutaRelativa = archivo.Ruta;
+        if (!rutaRelativa.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
+            rutaRelativa += extension;
+        var rutaFisica = Path.Combine(rutaBase, rutaRelativa);
+
+
+        if (!System.IO.File.Exists(rutaFisica))
             return NotFound();
 
         var contentType = "application/pdf";
-        var nombreArchivo = archivo.NombreArchivo ?? Path.GetFileName(archivo.Ruta);
-        return PhysicalFile(archivo.Ruta, contentType, nombreArchivo);
+        string nombreArchivo = archivo.NombreArchivo ?? archivo.Ruta;
+        if (!nombreArchivo.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
+            nombreArchivo += extension;
+
+        Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0";
+        Response.Headers["Pragma"] = "no-cache";
+        Response.Headers["Expires"] = "0";
+
+        return PhysicalFile(rutaFisica, contentType, nombreArchivo);
     }
 
     /*

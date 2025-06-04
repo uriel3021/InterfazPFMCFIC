@@ -5,10 +5,9 @@ public class ConfirmacionEnvioTablaViewModel
     public EstatusEnvio? Estatus { get; set; }
     public DateTime? Fecha { get; set; }
     public long? Folio { get; set; }
-    public string? Archivo { get; set; }
+    public string? ArchivoNombre { get; set; } // Solo el nombre, sin extensión
+    public string? ArchivoExtension { get; set; } // Solo la extensión, ej: ".pdf"
     public int ArchivoId { get; set; }
-
-
 }
 
 public enum EstatusEnvio
