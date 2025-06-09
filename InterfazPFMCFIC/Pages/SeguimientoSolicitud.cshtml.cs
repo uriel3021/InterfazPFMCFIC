@@ -4,22 +4,35 @@ using InterfazPFMCFIC.Specifications;
 using InterfazPFMCFIC.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 public class SeguimientoSolicitudModel : PageModel
 {
     private readonly IRepositoryBase<InterfazPfmCficArchivo> _repoArchivo;
     private readonly IRepositoryBase<InterfazPfmCficSolicitud> _repoSolicitud;
+    private readonly IRepositoryBase<InterfazPfmCficConfirmacionEnvio> _repoConfirmacionEnvio;
+    private readonly IRepositoryBase<InterfazPfmPfmCficConfirmacionRecepcion> _repoConfirmacionRecepcion;
+    private readonly IRepositoryBase<InterfazPfmCficRechazo> _repoRechazo;
     private readonly IConfiguration _configuration;
 
     public SeguimientoSolicitudModel(
-        IRepositoryBase<InterfazPfmCficArchivo> repoArchivo, 
+        IRepositoryBase<InterfazPfmCficArchivo> repoArchivo,
         IRepositoryBase<InterfazPfmCficSolicitud> repoSolicitud,
+        IRepositoryBase<InterfazPfmCficConfirmacionEnvio> repoConfirmacionEnvio,
+        IRepositoryBase<InterfazPfmPfmCficConfirmacionRecepcion> repoConfirmacionRecepcion,
+        IRepositoryBase<InterfazPfmCficRechazo> repoRechazo,
         IConfiguration configuration)
     {
         _repoArchivo = repoArchivo;
         _repoSolicitud = repoSolicitud;
+        _repoConfirmacionEnvio = repoConfirmacionEnvio;
+        _repoConfirmacionRecepcion = repoConfirmacionRecepcion;
+        _repoRechazo = repoRechazo;
         _configuration = configuration;
-
     }
 
     [BindProperty(SupportsGet = true)]
@@ -31,57 +44,92 @@ public class SeguimientoSolicitudModel : PageModel
     public int RegistrosPorPagina { get; set; } = 5;
     public int TotalPaginas { get; set; }
 
-    public List<ConfirmacionEnvioTablaViewModel> Confirmaciones { get; set; } = new();
+    public List<MovimientoTablaViewModel> Movimientos { get; set; } = new();
 
     public async Task OnGetAsync()
     {
-        // Obtener todos los registros para el ActoID
+        // Obtener todas las solicitudes para el ActoID
         var spec = new ConfirmacionSolicitudPorActoIdSpec(ActoID);
-        var solicitud = await _repoSolicitud.ListAsync(spec);
+        var solicitudes = await _repoSolicitud.ListAsync(spec);
 
-        //Obtengo el archivo asociado
-       // var specArchivo = new ConfirmacionArchivoPorIdSpec(solicitud.FirstOrDefault().SolicitudPfmcficid);
-        //var archivo = await _repoArchivo.FirstOrDefaultAsync(specArchivo);
-
-        // Calcular paginación
-        int totalRegistros = solicitud.Count;
+        int totalRegistros = solicitudes.Count;
         TotalPaginas = (int)Math.Ceiling(totalRegistros / (double)RegistrosPorPagina);
 
         // Obtener solo los registros de la página actual
-        var paginaActual = solicitud
+        var paginaActual = solicitudes
             .Skip((Pagina - 1) * RegistrosPorPagina)
             .Take(RegistrosPorPagina)
             .ToList();
 
-        // Para cada solicitud, busca su archivo asociado
-        // ...
-        Confirmaciones = new List<ConfirmacionEnvioTablaViewModel>();
-        foreach (var e in paginaActual)
-        {
-            var specArchivo = new ConfirmacionArchivoPorIdSpec(e.SolicitudPfmcficid);
-            var archivo = await _repoArchivo.FirstOrDefaultAsync(specArchivo);
+        var movimientos = new List<MovimientoTablaViewModel>();
 
-            string? nombre = null;
-            string? extension = null;
-            if (archivo != null && !string.IsNullOrEmpty(archivo.NombreArchivo))
+        foreach (var solicitud in paginaActual)
+        {
+            // ENVIADOS en tabla de envíos
+            var enviados = await _repoConfirmacionEnvio.ListAsync(
+                new ConfirmacionEnvioEnviadosSpec(solicitud.SolicitudPfmcficid));
+
+            // ACEPTADOS en tabla de recepciones
+            var aceptadosRecepcion = await _repoConfirmacionRecepcion.ListAsync(
+                new ConfirmacionRecepcionAceptadosSpec(solicitud.SolicitudPfmcficid));
+
+            // RECHAZADOS en tabla de rechazos
+            var rechazos = await _repoRechazo.ListAsync(
+                new RechazoSpecification(solicitud.SolicitudPfmcficid));
+
+            // Para cada movimiento ENVIADO, busca el archivo relacionado
+            foreach (var c in enviados)
             {
-                nombre = Path.GetFileNameWithoutExtension(archivo.NombreArchivo);
-                extension = Path.GetExtension(archivo.NombreArchivo);
+                // Busca el archivo cuyo RegistroId sea igual al ConfirmacionId del movimiento
+                var archivo = await _repoArchivo.FirstOrDefaultAsync(
+                    new ConfirmacionArchivoPorIdSpec(c.ConfirmacionId));
+
+                movimientos.Add(new MovimientoTablaViewModel
+                {
+                    Tipo = TipoConfirmacion.Enviado,
+                    Fecha = c.FechaRegistro,
+                    Mensaje = c.Mensaje,
+                    ArchivoId = archivo?.ArchivoId ?? 0,
+                    ArchivoNombre = archivo?.NombreArchivo
+                });
             }
 
-            Confirmaciones.Add(new ConfirmacionEnvioTablaViewModel
+            // Para cada movimiento ACEPTADO, busca el archivo relacionado
+            foreach (var c in aceptadosRecepcion)
             {
-                Estatus = e.InterfazPfmCficConfirmacionEnvios.FirstOrDefault()?.TipoConfirmacion.HasValue == true
-                    ? (EstatusEnvio?)e.InterfazPfmCficConfirmacionEnvios.FirstOrDefault().TipoConfirmacion.Value
-                    : null,
-                Fecha = e.InterfazPfmCficConfirmacionEnvios.FirstOrDefault()?.FechaRegistro,
-                Folio = e.InterfazPfmCficConfirmacionEnvios.FirstOrDefault()?.FolioConfirmacionCfic,
-                ArchivoId = archivo?.ArchivoId ?? 0,
-                ArchivoNombre = nombre,
-                ArchivoExtension = extension
-            });
+                var archivo = await _repoArchivo.FirstOrDefaultAsync(
+                    new ConfirmacionArchivoPorIdSpec(c.ConfirmacionId));
+
+                movimientos.Add(new MovimientoTablaViewModel
+                {
+                    Tipo = TipoConfirmacion.Aceptado,
+                    Fecha = c.FechaRegistro,
+                    Mensaje = c.Mensaje,
+                    ArchivoId = archivo?.ArchivoId ?? 0,
+                    ArchivoNombre = archivo?.NombreArchivo
+                });
+            }
+
+            // Para cada movimiento RECHAZADO, busca el archivo relacionado
+            foreach (var r in rechazos)
+            {
+                var archivo = await _repoArchivo.FirstOrDefaultAsync(
+                    new ConfirmacionArchivoPorIdSpec(r.RechazoId));
+
+                movimientos.Add(new MovimientoTablaViewModel
+                {
+                    Tipo = TipoConfirmacion.Rechazado,
+                    Fecha = r.FechaEnvio,
+                    Mensaje = r.Observaciones,
+                    ArchivoId = archivo?.ArchivoId ?? 0,
+                    ArchivoNombre = archivo?.NombreArchivo
+                });
+            }
         }
 
+        Movimientos = movimientos
+            .OrderBy(m => m.Fecha)
+            .ToList();
     }
 
     public async Task<IActionResult> OnGetDescargarArchivoAsync(int archivoId, long ticks)
@@ -99,7 +147,6 @@ public class SeguimientoSolicitudModel : PageModel
             rutaRelativa += extension;
         var rutaFisica = Path.Combine(rutaBase, rutaRelativa);
 
-
         if (!System.IO.File.Exists(rutaFisica))
             return NotFound();
 
@@ -114,11 +161,4 @@ public class SeguimientoSolicitudModel : PageModel
 
         return PhysicalFile(rutaFisica, contentType, nombreArchivo);
     }
-
-    /*
-    public async Task<IActionResult> OnGetDescargarArchivo()
-    {
-       return Content($"Handler invocado correctamente con archivoId");
-    }
-    */
 }

@@ -3,46 +3,51 @@
 @{
     ViewData["OcultarMenu"] = true;
 }
-
+<style>
+    th, td {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+</style>
 
 <h3>Seguimiento de Solicitud</h3>
-
 <br />
-@if (Model.Confirmaciones.Any())
+
+@if (Model.Movimientos.Any())
 {
     <table class="table table-striped" style="width:100%">
         <thead>
             <tr>
-                <th>Estatus</th>
+                <th>Tipo</th>
                 <th>Fecha</th>
-                <th>Folio</th>
+                <th>Mensaje</th>
                 <th>Archivo</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.Confirmaciones)
+            @foreach (var mov in Model.Movimientos)
             {
                 <tr>
-                    <td>@item.Estatus</td>
-                    <td>@item.Fecha?.ToString("dd/MM/yyyy")</td>
-                    <td>@item.Folio</td>
-                    <td style="text-align:center;">
-                        @if (!string.IsNullOrEmpty(item.ArchivoNombre) && item.ArchivoId > 0)
+                    <td>@mov.Tipo</td>
+                    <td>@mov.Fecha?.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@mov.Mensaje</td>
+                    <td>
+                        @if (mov.ArchivoId > 0 && !string.IsNullOrEmpty(mov.ArchivoNombre))
                         {
                             <a asp-page-handler="DescargarArchivo"
-                               asp-route-archivoId="@item.ArchivoId"
+                               asp-route-archivoId="@mov.ArchivoId"
                                asp-route-ticks="@DateTime.UtcNow.Ticks"
                                target="_blank"
                                title="Descargar PDF"
                                style="text-decoration:none;">
-                                <i class="fa-solid fa-file-pdf" style="color:#d32f2f; font-size:1.5em;"></i>
-                               
+                                <img src="https://localhost:7292/img/file-pdf-solid.svg" alt="PDF"
+                                     style="width:1.5em; height:1.5em; vertical-align:middle; filter: invert(18%) sepia(97%) saturate(7492%) hue-rotate(353deg) brightness(91%) contrast(101%);" />
                             </a>
                         }
                         else
                         {
                             <span style="color: #ccc;">
-                                <i class="fa-solid fa-file-pdf"  style="font-size:1.5em;"></i>
+                                <i class="fa-solid fa-file-pdf" style="font-size:1.5em;"></i>
                             </span>
                         }
                     </td>
@@ -53,7 +58,7 @@
     @if (Model.TotalPaginas > 1)
     {
         <nav>
-            <ul class="pagination">
+            <ul class="pagination justify-content-center">
                 <li class="page-item @(Model.Pagina == 1 ? "disabled" : "")">
                     <a class="page-link" href="/SeguimientoSolicitud?ActoID=@Model.ActoID&Pagina=@(Model.Pagina - 1)">Anterior</a>
                 </li>
@@ -72,7 +77,7 @@
 }
 else
 {
-    <p>No hay confirmaciones de envío para este ActoID.</p>
+    <p class="text-center">No hay movimientos para este ActoID.</p>
 }
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />

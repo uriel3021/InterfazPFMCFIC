@@ -60,7 +60,7 @@ builder.Services.AddRazorPages();
 var app = builder.Build();
 
 app.UseCors(); // Habilita CORS con la política por defecto
-
+app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
