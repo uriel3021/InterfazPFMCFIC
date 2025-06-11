@@ -65,24 +65,15 @@ public class SeguimientoSolicitudModel : PageModel
 
         foreach (var solicitud in paginaActual)
         {
-            // ENVIADOS en tabla de envíos
+            // ENVIADOS
             var enviados = await _repoConfirmacionEnvio.ListAsync(
                 new ConfirmacionEnvioEnviadosSpec(solicitud.SolicitudPfmcficid));
-
-            // ACEPTADOS en tabla de recepciones
-            var aceptadosRecepcion = await _repoConfirmacionRecepcion.ListAsync(
-                new ConfirmacionRecepcionAceptadosSpec(solicitud.SolicitudPfmcficid));
-
-            // RECHAZADOS en tabla de rechazos
-            var rechazos = await _repoRechazo.ListAsync(
-                new RechazoSpecification(solicitud.SolicitudPfmcficid));
-
-            // Para cada movimiento ENVIADO, busca el archivo relacionado
             foreach (var c in enviados)
             {
-                // Busca el archivo cuyo RegistroId sea igual al ConfirmacionId del movimiento
                 var archivo = await _repoArchivo.FirstOrDefaultAsync(
-                    new ConfirmacionArchivoPorIdSpec(c.ConfirmacionId));
+                    new ArchivoPorRegistroYProcesoSpec(
+                        solicitud.SolicitudPfmcficid,
+                        (int)TipoConfirmacion.Enviado));
 
                 movimientos.Add(new MovimientoTablaViewModel
                 {
@@ -94,27 +85,30 @@ public class SeguimientoSolicitudModel : PageModel
                 });
             }
 
-            // Para cada movimiento ACEPTADO, busca el archivo relacionado
+            // ACEPTADOS (NO archivo)
+            var aceptadosRecepcion = await _repoConfirmacionRecepcion.ListAsync(
+                new ConfirmacionRecepcionAceptadosSpec(solicitud.SolicitudPfmcficid));
             foreach (var c in aceptadosRecepcion)
             {
-                var archivo = await _repoArchivo.FirstOrDefaultAsync(
-                    new ConfirmacionArchivoPorIdSpec(c.ConfirmacionId));
-
                 movimientos.Add(new MovimientoTablaViewModel
                 {
                     Tipo = TipoConfirmacion.Aceptado,
                     Fecha = c.FechaRegistro,
                     Mensaje = c.Mensaje,
-                    ArchivoId = archivo?.ArchivoId ?? 0,
-                    ArchivoNombre = archivo?.NombreArchivo
+                    ArchivoId = 0,
+                    ArchivoNombre = null
                 });
             }
 
-            // Para cada movimiento RECHAZADO, busca el archivo relacionado
+            // RECHAZADOS
+            var rechazos = await _repoRechazo.ListAsync(
+                new RechazoSpecification(solicitud.SolicitudPfmcficid));
             foreach (var r in rechazos)
             {
                 var archivo = await _repoArchivo.FirstOrDefaultAsync(
-                    new ConfirmacionArchivoPorIdSpec(r.RechazoId));
+                    new ArchivoPorRegistroYProcesoSpec(
+                        r.RechazoId,
+                        (int)TipoConfirmacion.Rechazado));
 
                 movimientos.Add(new MovimientoTablaViewModel
                 {
@@ -122,7 +116,10 @@ public class SeguimientoSolicitudModel : PageModel
                     Fecha = r.FechaEnvio,
                     Mensaje = r.Observaciones,
                     ArchivoId = archivo?.ArchivoId ?? 0,
-                    ArchivoNombre = archivo?.NombreArchivo
+                    ArchivoNombre = archivo?.NombreArchivo,
+                    TipoRechazoId = r.TipoRechazoId,
+                    MotivoRechazoId = r.MotivoRechazoId,
+                    ObservacionesRechazo = r.Observaciones
                 });
             }
         }
