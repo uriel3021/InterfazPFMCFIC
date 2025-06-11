@@ -55,7 +55,8 @@ public enum TipoConfirmacion
     Enviado = 1,
     Aceptado = 2,
     Rechazado = 3,
-    Atendido = 4,
-    Cancelado = 5,
-    Reenviado = 6
+    AtendidoParcial = 4,
+    AtendidoTotal = 5,
+    Cancelado = 6,
+    Reenviado = 7
 }

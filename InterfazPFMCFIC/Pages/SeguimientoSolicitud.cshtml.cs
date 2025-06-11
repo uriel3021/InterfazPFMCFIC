@@ -79,7 +79,7 @@ public class SeguimientoSolicitudModel : PageModel
                 {
                     Tipo = TipoConfirmacion.Enviado,
                     Fecha = c.FechaRegistro,
-                    Mensaje = c.Mensaje,
+                    Folio = c.FolioConfirmacionCfic,
                     ArchivoId = archivo?.ArchivoId ?? 0,
                     ArchivoNombre = archivo?.NombreArchivo
                 });
@@ -94,7 +94,7 @@ public class SeguimientoSolicitudModel : PageModel
                 {
                     Tipo = TipoConfirmacion.Aceptado,
                     Fecha = c.FechaRegistro,
-                    Mensaje = c.Mensaje,
+                    Folio = c.FolioConfirmacionPfm,
                     ArchivoId = 0,
                     ArchivoNombre = null
                 });
@@ -113,8 +113,7 @@ public class SeguimientoSolicitudModel : PageModel
                 movimientos.Add(new MovimientoTablaViewModel
                 {
                     Tipo = TipoConfirmacion.Rechazado,
-                    Fecha = r.FechaEnvio,
-                    Mensaje = r.Observaciones,
+                    Fecha = r.FechaEnvio,              
                     ArchivoId = archivo?.ArchivoId ?? 0,
                     ArchivoNombre = archivo?.NombreArchivo,
                     TipoRechazoId = r.TipoRechazoId,
@@ -124,8 +123,9 @@ public class SeguimientoSolicitudModel : PageModel
             }
         }
 
+        // Ordena por fecha descendente (de más reciente a más antigua)
         Movimientos = movimientos
-            .OrderBy(m => m.Fecha)
+            .OrderByDescending(m => m.Fecha)
             .ToList();
     }
 
