@@ -15,6 +15,8 @@ public partial class DbInterfazPfmcficContext : DbContext
     {
     }
 
+    public virtual DbSet<CatMotivoRechazo> CatMotivoRechazos { get; set; }
+
     public virtual DbSet<InterfazPfmCficArchivo> InterfazPfmCficArchivos { get; set; }
 
     public virtual DbSet<InterfazPfmCficCancelacione> InterfazPfmCficCancelaciones { get; set; }
@@ -22,6 +24,8 @@ public partial class DbInterfazPfmcficContext : DbContext
     public virtual DbSet<InterfazPfmCficConfirmacionEnvio> InterfazPfmCficConfirmacionEnvios { get; set; }
 
     public virtual DbSet<InterfazPfmCficPlantilla> InterfazPfmCficPlantillas { get; set; }
+
+    public virtual DbSet<InterfazPfmCficProductorecibido> InterfazPfmCficProductorecibidos { get; set; }
 
     public virtual DbSet<InterfazPfmCficRechazo> InterfazPfmCficRechazos { get; set; }
 
@@ -35,6 +39,17 @@ public partial class DbInterfazPfmcficContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<CatMotivoRechazo>(entity =>
+        {
+            entity.HasKey(e => e.MotivoRechaId).HasName("PK__CatMotiv__94DBA2E7DA43BD7E");
+
+            entity.ToTable("CatMotivoRechazo");
+
+            entity.Property(e => e.Cenapi).HasColumnName("CENAPI");
+            entity.Property(e => e.Cgsp).HasColumnName("CGSP");
+            entity.Property(e => e.Pfm).HasColumnName("PFM");
+        });
+
         modelBuilder.Entity<InterfazPfmCficArchivo>(entity =>
         {
             entity.HasKey(e => e.ArchivoId)
@@ -125,6 +140,24 @@ public partial class DbInterfazPfmcficContext : DbContext
             entity.Property(e => e.Ruta)
                 .HasMaxLength(500)
                 .IsUnicode(false);
+            entity.Property(e => e.UsuarioId)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("UsuarioID");
+        });
+
+        modelBuilder.Entity<InterfazPfmCficProductorecibido>(entity =>
+        {
+            entity.HasKey(e => e.ProductoRecibidoId).HasFillFactor(80);
+
+            entity.ToTable("INTERFAZ_PFM_CFIC_PRODUCTORECIBIDO");
+
+            entity.Property(e => e.ProductoRecibidoId).HasColumnName("ProductoRecibidoID");
+            entity.Property(e => e.FechaActualizacionDelta).HasColumnType("datetime");
+            entity.Property(e => e.FechaAltaDelta).HasColumnType("datetime");
+            entity.Property(e => e.FechaProducto).HasColumnType("datetime");
+            entity.Property(e => e.GeneralesAntecedentesId).HasColumnName("GeneralesAntecedentesID");
+            entity.Property(e => e.SolicitudPfmcficid).HasColumnName("SolicitudPFMCFICID");
             entity.Property(e => e.UsuarioId)
                 .HasMaxLength(50)
                 .IsUnicode(false)
