@@ -17,6 +17,9 @@ public class SeguimientoSolicitudModel : PageModel
     private readonly IRepositoryBase<InterfazPfmCficConfirmacionEnvio> _repoConfirmacionEnvio;
     private readonly IRepositoryBase<InterfazPfmPfmCficConfirmacionRecepcion> _repoConfirmacionRecepcion;
     private readonly IRepositoryBase<InterfazPfmCficRechazo> _repoRechazo;
+    private readonly IRepositoryBase<InterfazPfmCficProductorecibido> _repoProductoRecibido;
+    private readonly IRepositoryBase<InterfazPfmCficCancelacione> _repoCancelacion;
+    private readonly IRepositoryBase<CatMotivoRechazo> _repoMotivoRechazo;
     private readonly IConfiguration _configuration;
 
     public SeguimientoSolicitudModel(
@@ -25,6 +28,9 @@ public class SeguimientoSolicitudModel : PageModel
         IRepositoryBase<InterfazPfmCficConfirmacionEnvio> repoConfirmacionEnvio,
         IRepositoryBase<InterfazPfmPfmCficConfirmacionRecepcion> repoConfirmacionRecepcion,
         IRepositoryBase<InterfazPfmCficRechazo> repoRechazo,
+        IRepositoryBase<InterfazPfmCficProductorecibido> repoProductoRecibido,
+        IRepositoryBase<InterfazPfmCficCancelacione> repoCancelacion,
+        IRepositoryBase<CatMotivoRechazo> repoMotivoRechazo,
         IConfiguration configuration)
     {
         _repoArchivo = repoArchivo;
@@ -32,6 +38,9 @@ public class SeguimientoSolicitudModel : PageModel
         _repoConfirmacionEnvio = repoConfirmacionEnvio;
         _repoConfirmacionRecepcion = repoConfirmacionRecepcion;
         _repoRechazo = repoRechazo;
+        _repoProductoRecibido = repoProductoRecibido;
+        _repoCancelacion = repoCancelacion;
+        _repoMotivoRechazo = repoMotivoRechazo;
         _configuration = configuration;
     }
 
@@ -45,6 +54,8 @@ public class SeguimientoSolicitudModel : PageModel
     public int TotalPaginas { get; set; }
 
     public List<MovimientoTablaViewModel> Movimientos { get; set; } = new();
+
+    public List<CatMotivoRechazo> MotivosRechazo { get; set; }
 
     public async Task OnGetAsync()
     {
@@ -121,12 +132,107 @@ public class SeguimientoSolicitudModel : PageModel
                     ObservacionesRechazo = r.Observaciones
                 });
             }
+
+            // ATENDIDO PARCIAL
+            var atendidosParciales = await _repoConfirmacionRecepcion.ListAsync(
+                new ConfirmacionRecepcionAtendidoParcialSpec(solicitud.SolicitudPfmcficid));
+            foreach (var c in atendidosParciales)
+            {
+                // Obtener el ProductoRecibidoId relacionado a la solicitud 
+                var productoRecibido = await _repoProductoRecibido.FirstOrDefaultAsync(
+                new ProductoRecibidoPorSolicitudIdSpec(solicitud.SolicitudPfmcficid)
+                );
+
+                int productoRecibidoId = productoRecibido?.ProductoRecibidoId ?? 0;
+
+                // Obtener el archivo usando la spec existente
+                var archivo = await _repoArchivo.FirstOrDefaultAsync(
+                    new ArchivoPorRegistroYProcesoSpec(
+                        productoRecibidoId,
+                        (int)TipoConfirmacion.AtendidoParcial
+                    )
+                );
+
+                movimientos.Add(new MovimientoTablaViewModel
+                {
+                    Tipo = TipoConfirmacion.AtendidoParcial,
+                    Fecha = c.FechaRegistro,
+                    Folio = c.FolioConfirmacionPfm,
+                    ArchivoId = archivo?.ArchivoId ?? 0,
+                    ArchivoNombre = archivo?.NombreArchivo,
+                });
+            }
+
+            // ATENDIDO TOTAL
+            var atendidosTotales = await _repoConfirmacionRecepcion.ListAsync(
+                new ConfirmacionRecepcionAtendidoTotalSpec(solicitud.SolicitudPfmcficid));
+            foreach (var c in atendidosParciales)
+            {
+                // Obtener el ProductoRecibidoId relacionado a la solicitud 
+                var productoRecibido = await _repoProductoRecibido.FirstOrDefaultAsync(
+                new ProductoRecibidoPorSolicitudIdSpec(solicitud.SolicitudPfmcficid)
+                );
+
+                int productoRecibidoId = productoRecibido?.ProductoRecibidoId ?? 0;
+
+                // Obtener el archivo usando la spec existente
+                var archivo = await _repoArchivo.FirstOrDefaultAsync(
+                    new ArchivoPorRegistroYProcesoSpec(
+                        productoRecibidoId,
+                        (int)TipoConfirmacion.AtendidoTotal
+                    )
+                );
+
+                movimientos.Add(new MovimientoTablaViewModel
+                {
+                    Tipo = TipoConfirmacion.AtendidoParcial,
+                    Fecha = c.FechaRegistro,
+                    Folio = c.FolioConfirmacionPfm,
+                    ArchivoId = archivo?.ArchivoId ?? 0,
+                    ArchivoNombre = archivo?.NombreArchivo,
+                });
+            }
+
+            // CANCELADOS
+            var cancelados = await _repoConfirmacionEnvio.ListAsync(
+                new ConfirmacionEnvioCanceladosSpec(solicitud.SolicitudPfmcficid)
+            );
+
+            foreach (var c in cancelados)
+            {
+                // Obtener la cancelación relacionada usando especificación
+                var cancelacion = await _repoCancelacion.FirstOrDefaultAsync(
+                    new CancelacionPorSolicitudIdSpec(solicitud.SolicitudPfmcficid)
+                );
+
+                int cancelacionId = cancelacion?.CancelacionId ?? 0;
+                DateTime? fechaCancelacion = cancelacion?.FechaCancelacion;
+
+                // Obtener el archivo usando la spec existente
+                var archivo = await _repoArchivo.FirstOrDefaultAsync(
+                    new ArchivoPorRegistroYProcesoSpec(
+                        cancelacionId,
+                        (int)TipoConfirmacion.Cancelado
+                    )
+                );
+
+                movimientos.Add(new MovimientoTablaViewModel
+                {
+                    Tipo = TipoConfirmacion.Cancelado,
+                    Fecha = fechaCancelacion,
+                    Folio = c.FolioConfirmacionCfic,
+                    ArchivoId = archivo?.ArchivoId ?? 0,
+                    ArchivoNombre = archivo?.NombreArchivo
+                });
+            }
         }
 
         // Ordena por fecha descendente (de más reciente a más antigua)
         Movimientos = movimientos
             .OrderByDescending(m => m.Fecha)
             .ToList();
+
+        MotivosRechazo = await _repoMotivoRechazo.ListAsync(new MotivosRechazoActivosSpec());
     }
 
     public async Task<IActionResult> OnGetDescargarArchivoAsync(int archivoId, long ticks)
@@ -138,11 +244,10 @@ public class SeguimientoSolicitudModel : PageModel
         var rutaBase = _configuration["Archivos:RutaBase"];
         var extension = _configuration["Archivos:Extension"];
 
-        // Solo agrega la extensión si no la tiene
         string rutaRelativa = archivo.Ruta;
         if (!rutaRelativa.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
             rutaRelativa += extension;
-        var rutaFisica = Path.Combine(rutaBase, rutaRelativa);
+        var rutaFisica = Path.Combine(rutaBase, rutaRelativa);     
 
         if (!System.IO.File.Exists(rutaFisica))
             return NotFound();
@@ -155,7 +260,8 @@ public class SeguimientoSolicitudModel : PageModel
         Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0";
         Response.Headers["Pragma"] = "no-cache";
         Response.Headers["Expires"] = "0";
+        Response.Headers["Content-Disposition"] = $"inline; filename=\"{nombreArchivo}\""; // <-- Esto es lo importante
 
-        return PhysicalFile(rutaFisica, contentType, nombreArchivo);
+        return PhysicalFile(rutaFisica, contentType);
     }
 }
