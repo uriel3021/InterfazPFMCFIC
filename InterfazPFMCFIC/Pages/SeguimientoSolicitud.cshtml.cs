@@ -77,23 +77,49 @@ public class SeguimientoSolicitudModel : PageModel
         foreach (var solicitud in paginaActual)
         {
             // ENVIADOS
-            var enviados = await _repoConfirmacionEnvio.ListAsync(
-                new ConfirmacionEnvioEnviadosSpec(solicitud.SolicitudPfmcficid));
-            foreach (var c in enviados)
+            if (solicitud.CatTipoEnvioId == 1)
             {
-                var archivo = await _repoArchivo.FirstOrDefaultAsync(
-                    new ArchivoPorRegistroYProcesoSpec(
-                        solicitud.SolicitudPfmcficid,
-                        (int)TipoConfirmacion.Enviado));
-
-                movimientos.Add(new MovimientoTablaViewModel
+                var enviados = await _repoConfirmacionEnvio.ListAsync(
+                    new ConfirmacionEnvioEnviadosSpec(solicitud.SolicitudPfmcficid));
+                foreach (var c in enviados)
                 {
-                    Tipo = TipoConfirmacion.Enviado,
-                    Fecha = c.FechaRegistro,
-                    Folio = c.FolioConfirmacionCfic,
-                    ArchivoId = archivo?.ArchivoId ?? 0,
-                    ArchivoNombre = archivo?.NombreArchivo
-                });
+                    var archivo = await _repoArchivo.FirstOrDefaultAsync(
+                        new ArchivoPorRegistroYProcesoSpec(
+                            solicitud.SolicitudPfmcficid,
+                            (int)TipoConfirmacion.Enviado));
+
+                    movimientos.Add(new MovimientoTablaViewModel
+                    {
+                        Tipo = TipoConfirmacion.Enviado,
+                        Fecha = c.FechaRegistro,
+                        Folio = c.FolioConfirmacionCfic,
+                        ArchivoId = archivo?.ArchivoId ?? 0,
+                        ArchivoNombre = archivo?.NombreArchivo
+                    });
+                }
+            }
+
+            // REENVIADOS
+            if (solicitud.CatTipoEnvioId == 2)
+            {
+                var reenviados = await _repoConfirmacionEnvio.ListAsync(
+                    new ConfirmacionEnvioReenviadosSpec(solicitud.SolicitudPfmcficid));
+                foreach (var c in reenviados)
+                {
+                    var archivo = await _repoArchivo.FirstOrDefaultAsync(
+                        new ArchivoPorRegistroYProcesoSpec(
+                            solicitud.SolicitudPfmcficid,
+                            (int)TipoConfirmacion.Reenviado));
+
+                    movimientos.Add(new MovimientoTablaViewModel
+                    {
+                        Tipo = TipoConfirmacion.Reenviado,
+                        Fecha = c.FechaRegistro,
+                        Folio = c.FolioConfirmacionCfic,
+                        ArchivoId = archivo?.ArchivoId ?? 0,
+                        ArchivoNombre = archivo?.NombreArchivo
+                    });
+                }
             }
 
             // ACEPTADOS (NO archivo)
