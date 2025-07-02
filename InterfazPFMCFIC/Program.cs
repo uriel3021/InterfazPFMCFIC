@@ -54,6 +54,7 @@ builder.Services.AddDbContext<DbInterfazPfmcficContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped(typeof(IRepositoryBase<>), typeof(EfRepository<>));
+builder.Services.AddScoped<PlantillaService>();
 
 builder.Services.AddRazorPages();
 
