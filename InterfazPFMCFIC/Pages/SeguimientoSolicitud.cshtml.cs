@@ -62,7 +62,7 @@ public class SeguimientoSolicitudModel : PageModel
         // Obtener todas las solicitudes para el ActoID
         var spec = new ConfirmacionSolicitudPorActoIdSpec(ActoID);
         var solicitudes = await _repoSolicitud.ListAsync(spec);
-
+        //erterterterter
         int totalRegistros = solicitudes.Count;
         TotalPaginas = (int)Math.Ceiling(totalRegistros / (double)RegistrosPorPagina);
 
