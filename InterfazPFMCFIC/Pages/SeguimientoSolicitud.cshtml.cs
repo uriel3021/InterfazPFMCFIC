@@ -2,6 +2,7 @@ using Ardalis.Specification;
 using InterfazPFMCFIC.Models;
 using InterfazPFMCFIC.Specifications;
 using InterfazPFMCFIC.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
@@ -10,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
+[Authorize]
 public class SeguimientoSolicitudModel : PageModel
 {
     private readonly IRepositoryBase<InterfazPfmCficArchivo> _repoArchivo;
