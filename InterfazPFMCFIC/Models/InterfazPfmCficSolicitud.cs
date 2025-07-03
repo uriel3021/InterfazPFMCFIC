@@ -7,7 +7,7 @@ public partial class InterfazPfmCficSolicitud
 {
     public int SolicitudPfmcficid { get; set; }
 
-    public int? ActoId { get; set; }
+    public int? ActosApfmid { get; set; }
 
     public string? Oficio { get; set; }
 
@@ -48,15 +48,4 @@ public partial class InterfazPfmCficSolicitud
     public virtual ICollection<InterfazPfmCficRechazo> InterfazPfmCficRechazos { get; set; } = new List<InterfazPfmCficRechazo>();
 
     public virtual ICollection<InterfazPfmPfmCficConfirmacionRecepcion> InterfazPfmPfmCficConfirmacionRecepcions { get; set; } = new List<InterfazPfmPfmCficConfirmacionRecepcion>();
-}
-
-public enum TipoConfirmacion
-{
-    Enviado = 1,
-    Aceptado = 2,
-    Rechazado = 3,
-    AtendidoParcial = 4,
-    AtendidoTotal = 5,
-    Cancelado = 6,
-    Reenviado = 7
 }
