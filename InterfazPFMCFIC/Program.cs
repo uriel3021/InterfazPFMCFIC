@@ -7,12 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
-
 var builder = WebApplication.CreateBuilder(args);
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-Console.WriteLine("Clave JWT usada: " + jwtSettings["Key"]);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -26,15 +23,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]))
-        };
-        options.Events = new JwtBearerEvents
-        {
-            OnAuthenticationFailed = context =>
-            {
-                Console.WriteLine("Token inválido: " + context.Exception.Message);
-                Console.WriteLine("Header Authorization recibido: " + context.Request.Headers["Authorization"]);
-                return Task.CompletedTask;
-            }
         };
     });
 
@@ -60,7 +48,7 @@ builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
-app.UseCors(); // Habilita CORS con la política por defecto
+app.UseCors();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();

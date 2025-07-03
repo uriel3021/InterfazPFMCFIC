@@ -5,10 +5,13 @@ using InterfazPFMCFIC.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 [Authorize]
@@ -59,8 +62,18 @@ public class SeguimientoSolicitudModel : PageModel
 
     public List<CatMotivoRechazo> MotivosRechazo { get; set; }
 
+    // Propiedad para pasar el token JWT a la vista
+    public string? CurrentToken { get; set; }
+
     public async Task OnGetAsync()
     {
+        // Capturar el token JWT del header de la petición actual
+        var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+        if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+        {
+            CurrentToken = authHeader.Substring("Bearer ".Length).Trim();
+        }
+
         // Obtener todas las solicitudes para el ActoID
         var spec = new ConfirmacionSolicitudPorActoIdSpec(ActoID);
         var solicitudes = await _repoSolicitud.ListAsync(spec);
@@ -152,7 +165,7 @@ public class SeguimientoSolicitudModel : PageModel
                 movimientos.Add(new MovimientoTablaViewModel
                 {
                     Tipo = TipoConfirmacion.Rechazado,
-                    Fecha = r.FechaEnvio,              
+                    Fecha = r.FechaEnvio,
                     ArchivoId = archivo?.ArchivoId ?? 0,
                     ArchivoNombre = archivo?.NombreArchivo,
                     TipoRechazoId = r.TipoRechazoId,
@@ -194,7 +207,7 @@ public class SeguimientoSolicitudModel : PageModel
             // ATENDIDO TOTAL
             var atendidosTotales = await _repoConfirmacionRecepcion.ListAsync(
                 new ConfirmacionRecepcionAtendidoTotalSpec(solicitud.SolicitudPfmcficid));
-            foreach (var c in atendidosParciales)
+            foreach (var c in atendidosTotales)
             {
                 // Obtener el ProductoRecibidoId relacionado a la solicitud 
                 var productoRecibido = await _repoProductoRecibido.FirstOrDefaultAsync(
@@ -213,7 +226,7 @@ public class SeguimientoSolicitudModel : PageModel
 
                 movimientos.Add(new MovimientoTablaViewModel
                 {
-                    Tipo = TipoConfirmacion.AtendidoParcial,
+                    Tipo = TipoConfirmacion.AtendidoTotal,
                     Fecha = c.FechaRegistro,
                     Folio = c.FolioConfirmacionPfm,
                     ArchivoId = archivo?.ArchivoId ?? 0,
@@ -261,35 +274,5 @@ public class SeguimientoSolicitudModel : PageModel
             .ToList();
 
         MotivosRechazo = await _repoMotivoRechazo.ListAsync(new MotivosRechazoActivosSpec());
-    }
-
-    public async Task<IActionResult> OnGetDescargarArchivoAsync(int archivoId, long ticks)
-    {
-        var archivo = await _repoArchivo.GetByIdAsync(archivoId);
-        if (archivo == null || string.IsNullOrEmpty(archivo.Ruta))
-            return NotFound();
-
-        var rutaBase = _configuration["Archivos:RutaBase"];
-        var extension = _configuration["Archivos:Extension"];
-
-        string rutaRelativa = archivo.Ruta;
-        if (!rutaRelativa.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
-            rutaRelativa += extension;
-        var rutaFisica = Path.Combine(rutaBase, rutaRelativa);     
-
-        if (!System.IO.File.Exists(rutaFisica))
-            return NotFound();
-
-        var contentType = "application/pdf";
-        string nombreArchivo = archivo.NombreArchivo ?? archivo.Ruta;
-        if (!nombreArchivo.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
-            nombreArchivo += extension;
-
-        Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0";
-        Response.Headers["Pragma"] = "no-cache";
-        Response.Headers["Expires"] = "0";
-        Response.Headers["Content-Disposition"] = $"inline; filename=\"{nombreArchivo}\""; // <-- Esto es lo importante
-
-        return PhysicalFile(rutaFisica, contentType);
     }
 }

@@ -1,4 +1,4 @@
-﻿@page
+@page
 @using InterfazPFMCFIC.Models
 @model SeguimientoSolicitudModel
 @{
@@ -15,14 +15,10 @@
         <table class="table table-striped table-sm" style="max-width:450px; font-size:0.93rem;">
             <thead>
                 <tr>
-            <thead>
-                <tr>
                     <th class="text-center" style="padding:0.1rem 0.3rem; font-size:0.95rem;">Tipo</th>
                     <th class="text-center" style="padding:0.1rem 0.3rem; font-size:0.95rem;">Fecha</th>
                     <th class="text-center" style="padding:0.1rem 0.3rem; font-size:0.95rem;">Folio</th>
                     <th class="text-center" style="padding:0.1rem 0.3rem; font-size:0.95rem;">Archivo</th>
-                </tr>
-            </thead>
                 </tr>
             </thead>
             <tbody>
@@ -52,9 +48,7 @@
                         <td class="text-center" style="padding:0.3rem 0.5rem;">
                             @if (mov.ArchivoId > 0 && !string.IsNullOrEmpty(mov.ArchivoNombre))
                             {
-                                <a asp-page-handler="DescargarArchivo"
-                                   asp-route-archivoId="@mov.ArchivoId"
-                                   asp-route-ticks="@DateTime.UtcNow.Ticks"
+                                <a href="/DescargarArchivo?archivoId=@mov.ArchivoId&token=@Model.CurrentToken"
                                    target="_blank"
                                    title="Descargar PDF"
                                    style="text-decoration:none;">
