@@ -24,7 +24,7 @@ public class SeguimientoSolicitudModel : PageModel
     private readonly IRepositoryBase<InterfazPfmCficRechazo> _repoRechazo;
     private readonly IRepositoryBase<InterfazPfmCficProductorecibido> _repoProductoRecibido;
     private readonly IRepositoryBase<InterfazPfmCficCancelacione> _repoCancelacion;
-    private readonly IRepositoryBase<CatMotivoRechazo> _repoMotivoRechazo;
+    private readonly IRepositoryBase<MotivoRechazo> _repoMotivoRechazo;
     private readonly IConfiguration _configuration;
 
     public SeguimientoSolicitudModel(
@@ -35,7 +35,7 @@ public class SeguimientoSolicitudModel : PageModel
         IRepositoryBase<InterfazPfmCficRechazo> repoRechazo,
         IRepositoryBase<InterfazPfmCficProductorecibido> repoProductoRecibido,
         IRepositoryBase<InterfazPfmCficCancelacione> repoCancelacion,
-        IRepositoryBase<CatMotivoRechazo> repoMotivoRechazo,
+        IRepositoryBase<MotivoRechazo> repoMotivoRechazo,
         IConfiguration configuration)
     {
         _repoArchivo = repoArchivo;
@@ -60,7 +60,7 @@ public class SeguimientoSolicitudModel : PageModel
 
     public List<MovimientoTablaViewModel> Movimientos { get; set; } = new();
 
-    public List<CatMotivoRechazo> MotivosRechazo { get; set; }
+    public List<MotivoRechazo> MotivosRechazo { get; set; }
 
     // Propiedad para pasar el token JWT a la vista
     public string? CurrentToken { get; set; }

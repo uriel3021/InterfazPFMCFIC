@@ -8,6 +8,6 @@ public class ConfirmacionSolicitudPorActoIdSpec : Specification<InterfazPfmCficS
     {
         Query
             .Include(x => x.InterfazPfmCficConfirmacionEnvios)
-            .Where(c => c.ActoId == actoId);
+            .Where(c => c.ActosApfmid == actoId);
     }
 }

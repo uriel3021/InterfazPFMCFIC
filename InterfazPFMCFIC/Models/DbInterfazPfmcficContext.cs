@@ -15,11 +15,17 @@ public partial class DbInterfazPfmcficContext : DbContext
     {
     }
 
-    public virtual DbSet<CatMotivoRechazo> CatMotivoRechazos { get; set; }
-
     public virtual DbSet<InterfazPfmCficArchivo> InterfazPfmCficArchivos { get; set; }
 
     public virtual DbSet<InterfazPfmCficCancelacione> InterfazPfmCficCancelaciones { get; set; }
+
+    public virtual DbSet<InterfazPfmCficCatCodigoRetorno> InterfazPfmCficCatCodigoRetornos { get; set; }
+
+    public virtual DbSet<InterfazPfmCficCatEstatusSolicitud> InterfazPfmCficCatEstatusSolicituds { get; set; }
+
+    public virtual DbSet<InterfazPfmCficCatTipoConfirmacion> InterfazPfmCficCatTipoConfirmacions { get; set; }
+
+    public virtual DbSet<InterfazPfmCficCatTipoProducto> InterfazPfmCficCatTipoProductos { get; set; }
 
     public virtual DbSet<InterfazPfmCficConfirmacionEnvio> InterfazPfmCficConfirmacionEnvios { get; set; }
 
@@ -33,23 +39,19 @@ public partial class DbInterfazPfmcficContext : DbContext
 
     public virtual DbSet<InterfazPfmPfmCficConfirmacionRecepcion> InterfazPfmPfmCficConfirmacionRecepcions { get; set; }
 
+    public virtual DbSet<MotivoRechazo> MotivoRechazos { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        // Configuración se hace desde Program.cs usando appsettings.json
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<CatMotivoRechazo>(entity =>
-        {
-            entity.HasKey(e => e.MotivoRechaId).HasName("PK__CatMotiv__94DBA2E7DA43BD7E");
-
-            entity.ToTable("CatMotivoRechazo");
-
-            entity.Property(e => e.Cenapi).HasColumnName("CENAPI");
-            entity.Property(e => e.Cgsp).HasColumnName("CGSP");
-            entity.Property(e => e.Pfm).HasColumnName("PFM");
-        });
-
         modelBuilder.Entity<InterfazPfmCficArchivo>(entity =>
         {
             entity.HasKey(e => e.ArchivoId)
-                .HasName("PK__INTERFAZ__3D24276A103985C2")
+                .HasName("PK__INTERFAZ__3D24276A7FD7C9C3")
                 .HasFillFactor(80);
 
             entity.ToTable("INTERFAZ_PFM_CFIC_ARCHIVO");
@@ -77,7 +79,7 @@ public partial class DbInterfazPfmcficContext : DbContext
         modelBuilder.Entity<InterfazPfmCficCancelacione>(entity =>
         {
             entity.HasKey(e => e.CancelacionId)
-                .HasName("PK__INTERFAZ__5A8447EED1F56CD4")
+                .HasName("PK__INTERFAZ__5A8447EE5E201ADC")
                 .HasFillFactor(80);
 
             entity.ToTable("INTERFAZ_PFM_CFIC_CANCELACIONES");
@@ -97,10 +99,58 @@ public partial class DbInterfazPfmcficContext : DbContext
                 .HasConstraintName("FK_INTERFAZ_PFM_CFIC_CANCELACIONES_INTERFAZ_PFM_CFIC_SOLICITUD");
         });
 
+        modelBuilder.Entity<InterfazPfmCficCatCodigoRetorno>(entity =>
+        {
+            entity.HasKey(e => e.CatCodigoRetornoId).HasFillFactor(80);
+
+            entity.ToTable("INTERFAZ_PFM_CFIC_CatCodigoRetorno");
+
+            entity.Property(e => e.CatCodigoRetornoId)
+                .ValueGeneratedNever()
+                .HasColumnName("CatCodigoRetornoID");
+            entity.Property(e => e.Descripcion).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<InterfazPfmCficCatEstatusSolicitud>(entity =>
+        {
+            entity.HasKey(e => e.CatEstatusSolicitudId).HasFillFactor(80);
+
+            entity.ToTable("INTERFAZ_PFM_CFIC_CatEstatusSolicitud");
+
+            entity.Property(e => e.CatEstatusSolicitudId)
+                .ValueGeneratedNever()
+                .HasColumnName("CatEstatusSolicitudID");
+            entity.Property(e => e.Descripcion)
+                .HasMaxLength(100)
+                .IsFixedLength();
+        });
+
+        modelBuilder.Entity<InterfazPfmCficCatTipoConfirmacion>(entity =>
+        {
+            entity.HasKey(e => e.CatTipoConfirmacionId).HasFillFactor(80);
+
+            entity.ToTable("INTERFAZ_PFM_CFIC_CatTipoConfirmacion");
+
+            entity.Property(e => e.CatTipoConfirmacionId)
+                .ValueGeneratedNever()
+                .HasColumnName("CatTipoConfirmacionID");
+            entity.Property(e => e.Descripcion).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<InterfazPfmCficCatTipoProducto>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("INTERFAZ_PFM_CFIC_CatTipoProducto");
+
+            entity.Property(e => e.CatTipoProductoId).HasColumnName("CatTipoProductoID");
+            entity.Property(e => e.Pfmcfic).HasColumnName("PFMCFIC");
+        });
+
         modelBuilder.Entity<InterfazPfmCficConfirmacionEnvio>(entity =>
         {
             entity.HasKey(e => e.ConfirmacionId)
-                .HasName("PK__INTERFAZ__63750390844B40E9")
+                .HasName("PK__INTERFAZ__637503903EAD6EE9")
                 .HasFillFactor(80);
 
             entity.ToTable("INTERFAZ_PFM_CFIC_CONFIRMACION_ENVIO");
@@ -121,7 +171,7 @@ public partial class DbInterfazPfmcficContext : DbContext
         modelBuilder.Entity<InterfazPfmCficPlantilla>(entity =>
         {
             entity.HasKey(e => e.PlantillaId)
-                .HasName("PK__INTERFAZ__C5DEB58C86D1F7B2")
+                .HasName("PK__INTERFAZ__C5DEB58C9A287233")
                 .HasFillFactor(80);
 
             entity.ToTable("INTERFAZ_PFM_CFIC_PLANTILLAS");
@@ -163,7 +213,7 @@ public partial class DbInterfazPfmcficContext : DbContext
         modelBuilder.Entity<InterfazPfmCficRechazo>(entity =>
         {
             entity.HasKey(e => e.RechazoId)
-                .HasName("PK__INTERFAZ__EEE564390E41E2CD")
+                .HasName("PK__INTERFAZ__EEE56439E97E3F10")
                 .HasFillFactor(80);
 
             entity.ToTable("INTERFAZ_PFM_CFIC_RECHAZOS");
@@ -191,13 +241,13 @@ public partial class DbInterfazPfmcficContext : DbContext
         modelBuilder.Entity<InterfazPfmCficSolicitud>(entity =>
         {
             entity.HasKey(e => e.SolicitudPfmcficid)
-                .HasName("PK__INTERFAZ__3411BB0B65FDDCD1")
+                .HasName("PK__INTERFAZ__3411BB0B5B5A8B25")
                 .HasFillFactor(80);
 
             entity.ToTable("INTERFAZ_PFM_CFIC_SOLICITUD");
 
             entity.Property(e => e.SolicitudPfmcficid).HasColumnName("SolicitudPFMCFICID");
-            entity.Property(e => e.ActoId).HasColumnName("ActoID");
+            entity.Property(e => e.ActosApfmid).HasColumnName("ActosAPFMID");
             entity.Property(e => e.AdscripcionId).HasColumnName("AdscripcionID");
             entity.Property(e => e.CatEstatusSolicitudId).HasColumnName("CatEstatusSolicitudID");
             entity.Property(e => e.CatTipoEnvioId).HasColumnName("CatTipoEnvioID");
@@ -224,7 +274,7 @@ public partial class DbInterfazPfmcficContext : DbContext
         modelBuilder.Entity<InterfazPfmPfmCficConfirmacionRecepcion>(entity =>
         {
             entity.HasKey(e => e.ConfirmacionId)
-                .HasName("PK__INTERFAZ__63750390F9478C23")
+                .HasName("PK__INTERFAZ__6375039090C53A46")
                 .HasFillFactor(80);
 
             entity.ToTable("INTERFAZ_PFM_PFM_CFIC_CONFIRMACION_RECEPCION");
@@ -241,6 +291,18 @@ public partial class DbInterfazPfmcficContext : DbContext
             entity.HasOne(d => d.SolictudPfmcfic).WithMany(p => p.InterfazPfmPfmCficConfirmacionRecepcions)
                 .HasForeignKey(d => d.SolictudPfmcficid)
                 .HasConstraintName("FK_INTERFAZ_PFM_PFM_CFIC_CONFIRMACION_RECEPCION_INTERFAZ_PFM_CFIC_SOLICITUD");
+        });
+
+        modelBuilder.Entity<MotivoRechazo>(entity =>
+        {
+            entity.HasKey(e => e.MotivoRechazoId).HasName("PK_dbo.MotivoRechazoNueva");
+
+            entity.ToTable("MotivoRechazo");
+
+            entity.Property(e => e.Cenapi).HasColumnName("CENAPI");
+            entity.Property(e => e.Cgsp).HasColumnName("CGSP");
+            entity.Property(e => e.Motivo).HasMaxLength(200);
+            entity.Property(e => e.Pfm).HasColumnName("PFM");
         });
 
         OnModelCreatingPartial(modelBuilder);
