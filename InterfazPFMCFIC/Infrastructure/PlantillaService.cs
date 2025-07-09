@@ -13,6 +13,10 @@ public class PlantillaService
 
     public byte[] LlenarPlantilla(string nombrePlantilla, string jsonValores)
     {
+        Console.WriteLine("=== DEBUG PLANTILLA ===");
+        Console.WriteLine($"Nombre plantilla: {nombrePlantilla}");
+        Console.WriteLine($"Ruta base: {_rutaBasePlantillas}");
+        
         if (string.IsNullOrEmpty(_rutaBasePlantillas))
         {
             throw new InvalidOperationException("La ruta base de las plantillas no está configurada.");
@@ -25,14 +29,21 @@ public class PlantillaService
 
         // Ruta completa de la plantilla
         string rutaPlantilla = Path.Combine(_rutaBasePlantillas, nombrePlantilla);
+        Console.WriteLine($"Ruta completa: {rutaPlantilla}");
 
         if (!File.Exists(rutaPlantilla))
         {
+            Console.WriteLine($"ERROR: El archivo no existe en: {rutaPlantilla}");
             throw new FileNotFoundException("La plantilla no existe.", rutaPlantilla);
         }
 
         // Leer el JSON y convertirlo a un diccionario
         var valores = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonValores);
+        Console.WriteLine("Valores a reemplazar:");
+        foreach (var kvp in valores)
+        {
+            Console.WriteLine($"  {kvp.Key} = {kvp.Value}");
+        }
 
         // Crear un archivo temporal para la plantilla generada
         string archivoTemporal = Path.GetTempFileName();
@@ -46,6 +57,7 @@ public class PlantillaService
 
                 foreach (var marcador in valores)
                 {
+                    Console.WriteLine($"Procesando marcador: {marcador.Key}");
                     ReemplazarMarcador(body, marcador.Key, marcador.Value);
                 }
 
@@ -53,6 +65,7 @@ public class PlantillaService
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"ERROR al procesar: {ex.Message}");
                 throw new InvalidOperationException("Error al procesar la plantilla. Verifica que no contenga elementos no compatibles.", ex);
             }
         }
@@ -63,12 +76,14 @@ public class PlantillaService
         // Eliminar el archivo temporal
         File.Delete(archivoTemporal);
 
+        Console.WriteLine("Plantilla procesada exitosamente");
         return archivoGenerado;
     }
 
     private void ReemplazarMarcador(Body body, string marcador, string valor)
     {
         var paragraphs = body.Descendants<Paragraph>();
+        int reemplazos = 0;
 
         foreach (var paragraph in paragraphs)
         {
@@ -78,10 +93,13 @@ public class PlantillaService
             string textoCompleto = string.Join(string.Empty, runs.Select(run => run.GetFirstChild<Text>()?.Text ?? string.Empty));
 
             // Verificar si el marcador está presente en el texto combinado
-            if (textoCompleto.Contains("{{" + marcador + "}}"))
+            string marcadorCompleto = "{{" + marcador + "}}";
+            if (textoCompleto.Contains(marcadorCompleto))
             {
+                Console.WriteLine($"  ENCONTRADO marcador {marcadorCompleto} en: {textoCompleto}");
+                
                 // Reemplazar el marcador con el valor, eliminando las llaves
-                textoCompleto = textoCompleto.Replace("{{" + marcador + "}}", valor);
+                textoCompleto = textoCompleto.Replace(marcadorCompleto, valor);
 
                 // Eliminar los Run existentes
                 foreach (var run in runs)
@@ -92,7 +110,18 @@ public class PlantillaService
                 // Crear un nuevo Run con el texto actualizado y estilo normal
                 var nuevoRun = new Run(new Text(textoCompleto));
                 paragraph.AppendChild(nuevoRun);
+                
+                reemplazos++;
             }
+        }
+        
+        if (reemplazos == 0)
+        {
+            Console.WriteLine($"  NO ENCONTRADO el marcador {marcador} en el documento");
+        }
+        else
+        {
+            Console.WriteLine($"  REALIZADO {reemplazos} reemplazos para {marcador}");
         }
     }
 }

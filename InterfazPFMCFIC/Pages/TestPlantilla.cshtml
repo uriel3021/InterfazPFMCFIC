@@ -4,8 +4,110 @@
     ViewData["Title"] = "Prueba de Plantilla";
 }
 
-<h1>Prueba de Plantilla</h1>
+<h1>Prueba de Plantillas</h1>
 
-<form method="post">
-    <button type="submit" asp-page-handler="GenerarPlantilla1" class="btn btn-primary">Generar Plantilla 1</button>
-</form>
+<div class="container">
+    <!-- Primera fila con 3 plantillas -->
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Plantilla 1 - Ficha Técnica de Identificación</h5>
+                </div>
+                <div class="card-body">
+                    <p>Genera la primera plantilla con datos de identificación.</p>
+                    <form method="post">
+                        <button type="submit" asp-page-handler="GenerarPlantilla1" class="btn btn-primary w-100">
+                            <i class="fas fa-file-word"></i> Generar Plantilla 1
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Plantilla 2 - Ficha de Antecedentes Ministeriales</h5>
+                </div>
+                <div class="card-body">
+                    <p>Genera la segunda plantilla con información de la fiscalía.</p>
+                    <form method="post">
+                        <button type="submit" asp-page-handler="GenerarPlantilla2" class="btn btn-success w-100">
+                            <i class="fas fa-file-word"></i> Generar Plantilla 2
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Plantilla 3 - Ficha Técnica de Identificación con Detenido</h5>
+                </div>
+                <div class="card-body">
+                    <p>Genera la tercera plantilla con información completa de fiscalía.</p>
+                    <form method="post">
+                        <button type="submit" asp-page-handler="GenerarPlantilla3" class="btn btn-warning w-100">
+                            <i class="fas fa-file-word"></i> Generar Plantilla 3
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Segunda fila con 3 plantillas -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Plantilla 4 - Ficha de Fuentes Abiertas</h5>
+                </div>
+                <div class="card-body">
+                    <p>Genera la cuarta plantilla con información de Nuevo León.</p>
+                    <form method="post">
+                        <button type="submit" asp-page-handler="GenerarPlantilla4" class="btn btn-info w-100">
+                            <i class="fas fa-file-word"></i> Generar Plantilla 4
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Plantilla 5 - Círculo de Proximidad</h5>
+                </div>
+                <div class="card-body">
+                    <p>Genera la quinta plantilla con información de Veracruz.</p>
+                    <form method="post">
+                        <button type="submit" asp-page-handler="GenerarPlantilla5" class="btn btn-secondary w-100">
+                            <i class="fas fa-file-word"></i> Generar Plantilla 5
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Plantilla 6 - Ficha Técnica de Identificacion de Armas de fuego</h5>
+                </div>
+                <div class="card-body">
+                    <p>Genera la sexta plantilla con información de Puebla.</p>
+                    <form method="post">
+                        <button type="submit" asp-page-handler="GenerarPlantilla6" class="btn btn-dark w-100">
+                            <i class="fas fa-file-word"></i> Generar Plantilla 6
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
