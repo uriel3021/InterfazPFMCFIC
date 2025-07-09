@@ -38,31 +38,23 @@ public class DescargarArchivoModel : PageModel
         }
         
         var archivo = await _repoArchivo.GetByIdAsync(archivoId);
-        if (archivo == null || string.IsNullOrEmpty(archivo.Ruta))
+        if (archivo == null || string.IsNullOrEmpty(archivo.Ruta) || string.IsNullOrEmpty(archivo.NombreArchivo))
             return NotFound();
 
-        var rutaBase = _configuration["Archivos:RutaBase"];
-        var extension = _configuration["Archivos:Extension"];
+        // Combinar ruta base de BD + nombre archivo (que ya incluye extensión)
+        string rutaCompleta = Path.Combine(archivo.Ruta, archivo.NombreArchivo);
 
-        string rutaRelativa = archivo.Ruta;
-        if (!rutaRelativa.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
-            rutaRelativa += extension;
-        var rutaFisica = Path.Combine(rutaBase, rutaRelativa);
-
-        if (!System.IO.File.Exists(rutaFisica))
+        if (!System.IO.File.Exists(rutaCompleta))
             return NotFound();
 
         var contentType = "application/pdf";
-        string nombreArchivo = archivo.NombreArchivo ?? archivo.Ruta;
-        if (!nombreArchivo.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
-            nombreArchivo += extension;
 
         Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0";
         Response.Headers["Pragma"] = "no-cache";
         Response.Headers["Expires"] = "0";
-        Response.Headers["Content-Disposition"] = $"inline; filename=\"{nombreArchivo}\"";
+        Response.Headers["Content-Disposition"] = $"inline; filename=\"{archivo.NombreArchivo}\"";
 
-        return PhysicalFile(rutaFisica, contentType);
+        return PhysicalFile(rutaCompleta, contentType);
     }
 
     private async Task<bool> ValidarTokenJWT(string token)
