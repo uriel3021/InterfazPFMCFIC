@@ -25,6 +25,7 @@
                 @for (int i = 0; i < Model.Movimientos.Count; i++)
                 {
                     var mov = Model.Movimientos[i];
+                    var urlDescarga = Url.Page("/DescargarArchivo", null, new { archivoId = mov.ArchivoId, token = Model.CurrentToken }, Request.Scheme);
                     <tr>
                         <td class="text-center" style="padding:0.3rem 0.5rem;">
                             @if (mov.Tipo == TipoConfirmacion.Rechazado)
@@ -48,7 +49,7 @@
                         <td class="text-center" style="padding:0.3rem 0.5rem;">
                             @if (mov.ArchivoId > 0 && !string.IsNullOrEmpty(mov.ArchivoNombre))
                             {
-                                <a href="/DescargarArchivo?archivoId=@mov.ArchivoId&token=@Model.CurrentToken"
+                                <a href="@urlDescarga"
                                    target="_blank"
                                    title="Descargar PDF"
                                    style="text-decoration:none;">
@@ -75,7 +76,6 @@
                                     @Model.MotivosRechazo.FirstOrDefault(m => m.MotivoRechazoId == mov.MotivoRechazoId)?.Motivo
                                     <br />
                                     <strong>Observaciones:</strong> @mov.ObservacionesRechazo
-                                    
                                     <br />
                                 </div>
                             </td>
