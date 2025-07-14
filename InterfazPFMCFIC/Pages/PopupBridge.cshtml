@@ -1,0 +1,53 @@
+@page
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>Redirigiendo...</title>
+    <script>
+        // Recibe datos del opener y redirige con POST
+        window.onload = function() {
+            // Espera a que el popupBridgeData esté disponible
+            function tryPost() {
+                try {
+                    if (window.opener && window.opener.popupBridgeData) {
+                        var data = window.opener.popupBridgeData;
+                        if (!data.actoId || !data.token) {
+                            document.body.innerHTML = '<p>Faltan datos requeridos.</p>';
+                            return;
+                        }
+                        var form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '/SeguimientoSolicitud';
+                        form.target = '_self';
+                        var acto = document.createElement('input');
+                        acto.type = 'hidden';
+                        acto.name = 'ActoID';
+                        acto.value = data.actoId;
+                        form.appendChild(acto);
+                        var token = document.createElement('input');
+                        token.type = 'hidden';
+                        token.name = 'token';
+                        token.value = data.token;
+                        form.appendChild(token);
+                        document.body.appendChild(form);
+                        form.submit();
+                    } else {
+                        // Si no está disponible, reintenta después de un breve tiempo
+                        setTimeout(tryPost, 100);
+                    }
+                } catch (e) {
+                    document.body.innerHTML = '<p>Error al procesar los datos.</p>';
+                }
+            }
+            tryPost();
+        }
+    </script>
+</head>
+<body>
+    <p>Redirigiendo...</p>
+</body>
+</html>

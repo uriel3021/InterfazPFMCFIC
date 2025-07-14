@@ -5,16 +5,17 @@ using InterfazPFMCFIC.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-[Authorize]
+[AllowAnonymous]
+// <- Con esto deshabilitas por completo el antiforgery para esta página
+[IgnoreAntiforgeryToken]
 public class SeguimientoSolicitudModel : PageModel
 {
     private readonly IRepositoryBase<InterfazPfmCficArchivo> _repoArchivo;
@@ -49,45 +50,84 @@ public class SeguimientoSolicitudModel : PageModel
         _configuration = configuration;
     }
 
-    [BindProperty(SupportsGet = true)]
+    [BindProperty]
     public int ActoID { get; set; }
 
-    [BindProperty(SupportsGet = true)]
-    public int Pagina { get; set; } = 1;
+    [BindProperty]
+    public string Token { get; set; }
 
+    public int Pagina { get; set; } = 1;
     public int RegistrosPorPagina { get; set; } = 5;
     public int TotalPaginas { get; set; }
 
     public List<MovimientoTablaViewModel> Movimientos { get; set; } = new();
+    public List<MotivoRechazo> MotivosRechazo { get; set; } = new();
 
-    public List<MotivoRechazo> MotivosRechazo { get; set; }
-
-    // Propiedad para pasar el token JWT a la vista
-    public string? CurrentToken { get; set; }
-
-    public async Task OnGetAsync()
+    // 1) Recibe el POST de la app externa
+    public IActionResult OnPost()
     {
-        // Capturar el token JWT del header de la petición actual
-        var authHeader = Request.Headers["Authorization"].FirstOrDefault();
-        if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+        TempData[nameof(ActoID)] = ActoID;
+        TempData[nameof(Token)] = Token;
+        return RedirectToPage(); // redirige limpio, sin querystring
+    }
+
+    // 2) Carga tras el redirect y valida el JWT manualmente
+    public async Task<IActionResult> OnGetAsync()
+    {
+        // Recuperar ActoID y Token de TempData
+        if (TempData.ContainsKey(nameof(ActoID)) && TempData.ContainsKey(nameof(Token)))
         {
-            CurrentToken = authHeader.Substring("Bearer ".Length).Trim();
+            ActoID = (int)TempData[nameof(ActoID)];
+            Token = TempData[nameof(Token)] as string;
+        }
+        else
+        {
+            // No vinieron datos: error o página vacía
+            return BadRequest();
         }
 
-        // Obtener todas las solicitudes para el ActoID
+        // Validar token JWT
+        var jwtSection = _configuration.GetSection("Jwt");
+        var key = jwtSection["Key"];
+        var issuer = jwtSection["Issuer"];
+        var audience = jwtSection["Audience"];
+
+        var handler = new JwtSecurityTokenHandler();
+        var parameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = issuer,
+            ValidAudience = audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+        };
+
+        try
+        {
+            handler.ValidateToken(Token, parameters, out _);
+        }
+        catch
+        {
+            return Unauthorized();
+        }
+
+        // Cargar tus Movimientos y MotivosRechazo (tu lógica original)
         var spec = new ConfirmacionSolicitudPorActoIdSpec(ActoID);
         var solicitudes = await _repoSolicitud.ListAsync(spec);
 
         int totalRegistros = solicitudes.Count;
         TotalPaginas = (int)Math.Ceiling(totalRegistros / (double)RegistrosPorPagina);
 
-        // Obtener solo los registros de la página actual
         var paginaActual = solicitudes
             .Skip((Pagina - 1) * RegistrosPorPagina)
             .Take(RegistrosPorPagina)
             .ToList();
 
         var movimientos = new List<MovimientoTablaViewModel>();
+
+        var list = new List<MovimientoTablaViewModel>();
 
         foreach (var solicitud in paginaActual)
         {
@@ -267,12 +307,11 @@ public class SeguimientoSolicitudModel : PageModel
                 });
             }
         }
-
-        // Ordena por fecha descendente (de más reciente a más antigua)
         Movimientos = movimientos
-            .OrderByDescending(m => m.Fecha)
-            .ToList();
-
+         .OrderByDescending(m => m.Fecha)
+         .ToList();
         MotivosRechazo = await _repoMotivoRechazo.ListAsync(new MotivosRechazoActivosSpec());
+
+        return Page();
     }
 }
