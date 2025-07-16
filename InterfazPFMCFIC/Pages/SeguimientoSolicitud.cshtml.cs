@@ -308,7 +308,7 @@ public class SeguimientoSolicitudModel : PageModel
             }
         }
         Movimientos = movimientos
-         .OrderByDescending(m => m.Fecha)
+         .OrderBy(m => m.Fecha)
          .ToList();
         MotivosRechazo = await _repoMotivoRechazo.ListAsync(new MotivosRechazoActivosSpec());
 

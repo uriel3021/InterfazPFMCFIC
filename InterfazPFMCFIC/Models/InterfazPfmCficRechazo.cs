@@ -19,7 +19,7 @@ public partial class InterfazPfmCficRechazo
 
     public bool? Expirado { get; set; }
 
-    public string? UsuarioId { get; set; }
+ 
 
     public DateTime? FechaAltaDelta { get; set; }
 

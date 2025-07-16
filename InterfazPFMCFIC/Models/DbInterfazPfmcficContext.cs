@@ -228,10 +228,7 @@ public partial class DbInterfazPfmcficContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.SolictudPfmcficid).HasColumnName("SolictudPFMCFICID");
             entity.Property(e => e.TipoRechazoId).HasColumnName("TipoRechazoID");
-            entity.Property(e => e.UsuarioId)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("UsuarioID");
+
 
             entity.HasOne(d => d.SolictudPfmcfic).WithMany(p => p.InterfazPfmCficRechazos)
                 .HasForeignKey(d => d.SolictudPfmcficid)
