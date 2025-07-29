@@ -5,7 +5,7 @@ namespace InterfazPFMCFIC.ViewModels;
 
 public class MovimientoTablaViewModel
 {
-    public TipoConfirmacion Tipo { get; set; }
+    public string Tipo { get; set; }
     public DateTime? Fecha { get; set; }
     public long? Folio { get; set; }
     public int ArchivoId { get; set; } // <--- Agrega esto
@@ -15,4 +15,6 @@ public class MovimientoTablaViewModel
     public int? TipoRechazoId { get; set; }
     public int? MotivoRechazoId { get; set; }
     public string? ObservacionesRechazo { get; set; }
+    public string? MotivoRechazoTexto { get; set; }
+    public string? TipoRechazoTexto { get; set; }
 }

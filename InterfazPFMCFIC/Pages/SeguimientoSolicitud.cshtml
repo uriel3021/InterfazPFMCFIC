@@ -66,7 +66,7 @@
                         );
                         <tr data-idx="@i">
                             <td class="text-center">
-                                @if (mov.Tipo == TipoConfirmacion.Rechazado)
+                                @if (mov.Tipo == Model.TipoDescripcionRechazado)
                                 {
                                     <span class="details-control" data-idx="@i">@mov.Tipo</span>
                                 }
@@ -102,10 +102,10 @@
     <script>
         // Datos de detalles de rechazo
         var detallesRechazo = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
-            Model.Movimientos.Select((mov, idx) => mov.Tipo == TipoConfirmacion.Rechazado ? new {
+            Model.Movimientos.Select((mov, idx) => mov.Tipo == Model.TipoDescripcionRechazado ? new {
                 idx,
-                tipo = mov.TipoRechazoId,
-                motivo = Model.MotivosRechazo.FirstOrDefault(m => m.MotivoRechazoId == mov.MotivoRechazoId)?.Motivo,
+                tipo = mov.TipoRechazoTexto,
+                motivo = mov.MotivoRechazoTexto,
                 obs = mov.ObservacionesRechazo
             } : null).ToList()
         ));

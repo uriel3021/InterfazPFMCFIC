@@ -29,3 +29,11 @@ public partial class InterfazPfmCficRechazo
 
     public virtual InterfazPfmCficSolicitud? SolictudPfmcfic { get; set; }
 }
+
+
+public enum TipoRechazo
+{
+    Forma = 1,
+    Fondo = 2,
+
+}

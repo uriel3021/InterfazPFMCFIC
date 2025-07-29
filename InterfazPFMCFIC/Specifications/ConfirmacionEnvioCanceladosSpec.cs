@@ -3,11 +3,11 @@ using InterfazPFMCFIC.Models;
 
 public class ConfirmacionEnvioCanceladosSpec : Specification<InterfazPfmCficConfirmacionEnvio>
 {
-    public ConfirmacionEnvioCanceladosSpec(int solicitudPfmcficid)
+    public ConfirmacionEnvioCanceladosSpec(int solicitudPfmcficid, int tipoCanceladoId)
     {
         Query.Where(x =>
             x.SolictudPfmcficid == solicitudPfmcficid &&
-            x.TipoConfirmacion == (int)TipoConfirmacion.Cancelado &&
+            x.TipoConfirmacion == tipoCanceladoId &&
             x.CodigoRetorno == 1
         );
     }

@@ -26,6 +26,7 @@ public class SeguimientoSolicitudModel : PageModel
     private readonly IRepositoryBase<InterfazPfmCficProductorecibido> _repoProductoRecibido;
     private readonly IRepositoryBase<InterfazPfmCficCancelacione> _repoCancelacion;
     private readonly IRepositoryBase<MotivoRechazo> _repoMotivoRechazo;
+    private readonly IRepositoryBase<InterfazPfmCficCatTipoConfirmacion> _repoTipoConfirmacion;
     private readonly IConfiguration _configuration;
 
     public SeguimientoSolicitudModel(
@@ -37,6 +38,7 @@ public class SeguimientoSolicitudModel : PageModel
         IRepositoryBase<InterfazPfmCficProductorecibido> repoProductoRecibido,
         IRepositoryBase<InterfazPfmCficCancelacione> repoCancelacion,
         IRepositoryBase<MotivoRechazo> repoMotivoRechazo,
+        IRepositoryBase<InterfazPfmCficCatTipoConfirmacion> repoTipoConfirmacion,
         IConfiguration configuration)
     {
         _repoArchivo = repoArchivo;
@@ -47,6 +49,7 @@ public class SeguimientoSolicitudModel : PageModel
         _repoProductoRecibido = repoProductoRecibido;
         _repoCancelacion = repoCancelacion;
         _repoMotivoRechazo = repoMotivoRechazo;
+        _repoTipoConfirmacion = repoTipoConfirmacion;
         _configuration = configuration;
     }
 
@@ -62,6 +65,10 @@ public class SeguimientoSolicitudModel : PageModel
 
     public List<MovimientoTablaViewModel> Movimientos { get; set; } = new();
     public List<MotivoRechazo> MotivosRechazo { get; set; } = new();
+    public List<InterfazPfmCficCatTipoConfirmacion> CatTipoConfirmacion { get; set; } = new();
+
+    public string TipoDescripcionRechazado =>
+       CatTipoConfirmacion.First(x => x.CatTipoConfirmacionId == (int)TipoConfirmacion.Rechazo).Descripcion;
 
     // 1) Recibe el POST de la app externa
     public IActionResult OnPost()
@@ -113,6 +120,10 @@ public class SeguimientoSolicitudModel : PageModel
             return Unauthorized();
         }
 
+        // Cargar primero el catálogo de motivos de rechazo
+        MotivosRechazo = await _repoMotivoRechazo.ListAsync(new MotivosRechazoActivosSpec());
+        CatTipoConfirmacion = await _repoTipoConfirmacion.ListAsync(new CatTipoConfirmacionSpec());
+
         // Cargar tus Movimientos y MotivosRechazo (tu lógica original)
         var spec = new ConfirmacionSolicitudPorActoIdSpec(ActoID);
         var solicitudes = await _repoSolicitud.ListAsync(spec);
@@ -134,18 +145,21 @@ public class SeguimientoSolicitudModel : PageModel
             // ENVIADOS
             if (solicitud.CatTipoEnvioId == 1)
             {
+                var tipoEnviado = CatTipoConfirmacion.First(x => x.CatTipoConfirmacionId == (int)TipoConfirmacion.Solicitud);
+
                 var enviados = await _repoConfirmacionEnvio.ListAsync(
-                    new ConfirmacionEnvioEnviadosSpec(solicitud.SolicitudPfmcficid));
+                    new ConfirmacionEnvioEnviadosSpec(solicitud.SolicitudPfmcficid, tipoEnviado.CatTipoConfirmacionId));
+
                 foreach (var c in enviados)
                 {
                     var archivo = await _repoArchivo.FirstOrDefaultAsync(
                         new ArchivoPorRegistroYProcesoSpec(
                             solicitud.SolicitudPfmcficid,
-                            (int)TipoConfirmacion.Enviado));
+                             tipoEnviado.CatTipoConfirmacionId));
 
                     movimientos.Add(new MovimientoTablaViewModel
                     {
-                        Tipo = TipoConfirmacion.Enviado,
+                        Tipo = tipoEnviado.Descripcion,
                         Fecha = c.FechaRegistro,
                         Folio = c.FolioConfirmacionCfic,
                         ArchivoId = archivo?.ArchivoId ?? 0,
@@ -157,18 +171,20 @@ public class SeguimientoSolicitudModel : PageModel
             // REENVIADOS
             if (solicitud.CatTipoEnvioId == 2)
             {
+                var tipoReenviado = CatTipoConfirmacion.First(x => x.CatTipoConfirmacionId == (int)TipoConfirmacion.Actualizacion);
+
                 var reenviados = await _repoConfirmacionEnvio.ListAsync(
-                    new ConfirmacionEnvioReenviadosSpec(solicitud.SolicitudPfmcficid));
+                    new ConfirmacionEnvioReenviadosSpec(solicitud.SolicitudPfmcficid, tipoReenviado.CatTipoConfirmacionId));
+               
                 foreach (var c in reenviados)
                 {
                     var archivo = await _repoArchivo.FirstOrDefaultAsync(
                         new ArchivoPorRegistroYProcesoSpec(
-                            solicitud.SolicitudPfmcficid,
-                            (int)TipoConfirmacion.Reenviado));
+                            solicitud.SolicitudPfmcficid, tipoReenviado.CatTipoConfirmacionId));
 
                     movimientos.Add(new MovimientoTablaViewModel
                     {
-                        Tipo = TipoConfirmacion.Reenviado,
+                        Tipo = tipoReenviado.Descripcion,
                         Fecha = c.FechaRegistro,
                         Folio = c.FolioConfirmacionCfic,
                         ArchivoId = archivo?.ArchivoId ?? 0,
@@ -178,13 +194,16 @@ public class SeguimientoSolicitudModel : PageModel
             }
 
             // ACEPTADOS (NO archivo)
+            var tipoAceptacion = CatTipoConfirmacion.First(x => x.CatTipoConfirmacionId == (int)TipoConfirmacion.Aceptacion);
+
             var aceptadosRecepcion = await _repoConfirmacionRecepcion.ListAsync(
-                new ConfirmacionRecepcionAceptadosSpec(solicitud.SolicitudPfmcficid));
+                new ConfirmacionRecepcionAceptadosSpec(solicitud.SolicitudPfmcficid, tipoAceptacion.CatTipoConfirmacionId));
+
             foreach (var c in aceptadosRecepcion)
             {
                 movimientos.Add(new MovimientoTablaViewModel
                 {
-                    Tipo = TipoConfirmacion.Aceptado,
+                    Tipo = tipoAceptacion.Descripcion,
                     Fecha = c.FechaRegistro,
                     Folio = c.FolioConfirmacionPfm,
                     ArchivoId = 0,
@@ -193,30 +212,40 @@ public class SeguimientoSolicitudModel : PageModel
             }
 
             // RECHAZADOS
+            var tipoRechazo = CatTipoConfirmacion.First(x => x.CatTipoConfirmacionId == (int)TipoConfirmacion.Rechazo);
+
             var rechazos = await _repoRechazo.ListAsync(
                 new RechazoSpecification(solicitud.SolicitudPfmcficid));
+
             foreach (var r in rechazos)
             {
                 var archivo = await _repoArchivo.FirstOrDefaultAsync(
                     new ArchivoPorRegistroYProcesoSpec(
-                        r.RechazoId,
-                        (int)TipoConfirmacion.Rechazado));
+                        r.RechazoId, tipoRechazo.CatTipoConfirmacionId));
+
+                var motivoTexto = MotivosRechazo.FirstOrDefault(m => m.MotivoRechazoId == r.MotivoRechazoId)?.Motivo;
+                var tipoRechazoTexto = r.TipoRechazoId.HasValue ? ((TipoRechazo)r.TipoRechazoId.Value).ToString() : null;
 
                 movimientos.Add(new MovimientoTablaViewModel
                 {
-                    Tipo = TipoConfirmacion.Rechazado,
+                    Tipo = tipoRechazo.Descripcion,
                     Fecha = r.FechaEnvio,
                     ArchivoId = archivo?.ArchivoId ?? 0,
                     ArchivoNombre = archivo?.NombreArchivo,
                     TipoRechazoId = r.TipoRechazoId,
                     MotivoRechazoId = r.MotivoRechazoId,
-                    ObservacionesRechazo = r.Observaciones
+                    ObservacionesRechazo = r.Observaciones,
+                    MotivoRechazoTexto = motivoTexto,
+                    TipoRechazoTexto = tipoRechazoTexto
                 });
             }
 
             // ATENDIDO PARCIAL
+            var tipoAtendidoParcial = CatTipoConfirmacion.First(x => x.CatTipoConfirmacionId == (int)TipoConfirmacion.InformeParcial);
+
             var atendidosParciales = await _repoConfirmacionRecepcion.ListAsync(
-                new ConfirmacionRecepcionAtendidoParcialSpec(solicitud.SolicitudPfmcficid));
+                new ConfirmacionRecepcionAtendidoParcialSpec(solicitud.SolicitudPfmcficid, tipoAtendidoParcial.CatTipoConfirmacionId));
+
             foreach (var c in atendidosParciales)
             {
                 // Obtener el ProductoRecibidoId relacionado a la solicitud 
@@ -229,14 +258,11 @@ public class SeguimientoSolicitudModel : PageModel
                 // Obtener el archivo usando la spec existente
                 var archivo = await _repoArchivo.FirstOrDefaultAsync(
                     new ArchivoPorRegistroYProcesoSpec(
-                        productoRecibidoId,
-                        (int)TipoConfirmacion.AtendidoParcial
-                    )
-                );
+                        productoRecibidoId, tipoAtendidoParcial.CatTipoConfirmacionId));
 
                 movimientos.Add(new MovimientoTablaViewModel
                 {
-                    Tipo = TipoConfirmacion.AtendidoParcial,
+                    Tipo = tipoAtendidoParcial.Descripcion,
                     Fecha = c.FechaRegistro,
                     Folio = c.FolioConfirmacionPfm,
                     ArchivoId = archivo?.ArchivoId ?? 0,
@@ -245,8 +271,11 @@ public class SeguimientoSolicitudModel : PageModel
             }
 
             // ATENDIDO TOTAL
+            var tipoAtendidoTotal = CatTipoConfirmacion.First(x => x.CatTipoConfirmacionId == (int)TipoConfirmacion.InformeTotal);
+
             var atendidosTotales = await _repoConfirmacionRecepcion.ListAsync(
-                new ConfirmacionRecepcionAtendidoTotalSpec(solicitud.SolicitudPfmcficid));
+                new ConfirmacionRecepcionAtendidoTotalSpec(solicitud.SolicitudPfmcficid, tipoAtendidoTotal.CatTipoConfirmacionId));
+
             foreach (var c in atendidosTotales)
             {
                 // Obtener el ProductoRecibidoId relacionado a la solicitud 
@@ -259,14 +288,11 @@ public class SeguimientoSolicitudModel : PageModel
                 // Obtener el archivo usando la spec existente
                 var archivo = await _repoArchivo.FirstOrDefaultAsync(
                     new ArchivoPorRegistroYProcesoSpec(
-                        productoRecibidoId,
-                        (int)TipoConfirmacion.AtendidoTotal
-                    )
-                );
+                        productoRecibidoId, tipoAtendidoTotal.CatTipoConfirmacionId));
 
                 movimientos.Add(new MovimientoTablaViewModel
                 {
-                    Tipo = TipoConfirmacion.AtendidoTotal,
+                    Tipo = tipoAtendidoTotal.Descripcion,
                     Fecha = c.FechaRegistro,
                     Folio = c.FolioConfirmacionPfm,
                     ArchivoId = archivo?.ArchivoId ?? 0,
@@ -275,9 +301,10 @@ public class SeguimientoSolicitudModel : PageModel
             }
 
             // CANCELADOS
+            var tipoCancelado = CatTipoConfirmacion.First(x => x.CatTipoConfirmacionId == (int)TipoConfirmacion.Cancelacion);
+
             var cancelados = await _repoConfirmacionEnvio.ListAsync(
-                new ConfirmacionEnvioCanceladosSpec(solicitud.SolicitudPfmcficid)
-            );
+                new ConfirmacionEnvioCanceladosSpec(solicitud.SolicitudPfmcficid, tipoCancelado.CatTipoConfirmacionId));
 
             foreach (var c in cancelados)
             {
@@ -292,14 +319,11 @@ public class SeguimientoSolicitudModel : PageModel
                 // Obtener el archivo usando la spec existente
                 var archivo = await _repoArchivo.FirstOrDefaultAsync(
                     new ArchivoPorRegistroYProcesoSpec(
-                        cancelacionId,
-                        (int)TipoConfirmacion.Cancelado
-                    )
-                );
+                        cancelacionId, tipoCancelado.CatTipoConfirmacionId));
 
                 movimientos.Add(new MovimientoTablaViewModel
                 {
-                    Tipo = TipoConfirmacion.Cancelado,
+                    Tipo = tipoCancelado.Descripcion,
                     Fecha = fechaCancelacion,
                     Folio = c.FolioConfirmacionCfic,
                     ArchivoId = archivo?.ArchivoId ?? 0,
@@ -310,7 +334,6 @@ public class SeguimientoSolicitudModel : PageModel
         Movimientos = movimientos
          .OrderBy(m => m.Fecha)
          .ToList();
-        MotivosRechazo = await _repoMotivoRechazo.ListAsync(new MotivosRechazoActivosSpec());
 
         return Page();
     }

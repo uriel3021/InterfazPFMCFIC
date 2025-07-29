@@ -5,6 +5,6 @@ public class MotivosRechazoActivosSpec : Specification<MotivoRechazo>
 {
     public MotivosRechazoActivosSpec()
     {
-        Query.Where(m => !m.Borrado);
+      //  Query.Where(m => !m.Borrado);
     }
 }

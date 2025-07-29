@@ -53,11 +53,11 @@ public partial class InterfazPfmCficSolicitud
 
 public enum TipoConfirmacion
 {
-    Enviado = 1,
-    Aceptado = 2,
-    Rechazado = 3,
-    AtendidoParcial = 4,
-    AtendidoTotal = 5,
-    Cancelado = 6,
-    Reenviado = 7
+    Solicitud = 1,
+    Aceptacion = 10,
+    Rechazo = 8,
+    InformeParcial = 15,
+    InformeTotal = 2,
+    Cancelacion = 4,
+    Actualizacion = 6
 }
