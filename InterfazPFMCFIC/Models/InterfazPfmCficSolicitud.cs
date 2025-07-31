@@ -50,7 +50,6 @@ public partial class InterfazPfmCficSolicitud
     public virtual ICollection<InterfazPfmPfmCficConfirmacionRecepcion> InterfazPfmPfmCficConfirmacionRecepcions { get; set; } = new List<InterfazPfmPfmCficConfirmacionRecepcion>();
 }
 
-
 public enum TipoConfirmacion
 {
     Solicitud = 1,
@@ -59,5 +58,6 @@ public enum TipoConfirmacion
     InformeParcial = 15,
     InformeTotal = 2,
     Cancelacion = 4,
-    Actualizacion = 6
+    Actualizacion = 6,
+    NotificacionAsignacion =3
 }

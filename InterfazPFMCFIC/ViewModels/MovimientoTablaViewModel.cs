@@ -17,4 +17,9 @@ public class MovimientoTablaViewModel
     public string? ObservacionesRechazo { get; set; }
     public string? MotivoRechazoTexto { get; set; }
     public string? TipoRechazoTexto { get; set; }
+
+    //solo para asignaciones
+    public string NombreAnalista { get; set; } = null!;
+    public DateTime FechaAsignacion { get; set; }
+
 }

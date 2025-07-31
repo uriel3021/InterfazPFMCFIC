@@ -27,6 +27,7 @@ public class SeguimientoSolicitudModel : PageModel
     private readonly IRepositoryBase<InterfazPfmCficCancelacione> _repoCancelacion;
     private readonly IRepositoryBase<MotivoRechazo> _repoMotivoRechazo;
     private readonly IRepositoryBase<InterfazPfmCficCatTipoConfirmacion> _repoTipoConfirmacion;
+    private readonly IRepositoryBase<InterfazPfmCficAsignacione> _repoAsignaciones;
     private readonly IConfiguration _configuration;
 
     public SeguimientoSolicitudModel(
@@ -39,6 +40,7 @@ public class SeguimientoSolicitudModel : PageModel
         IRepositoryBase<InterfazPfmCficCancelacione> repoCancelacion,
         IRepositoryBase<MotivoRechazo> repoMotivoRechazo,
         IRepositoryBase<InterfazPfmCficCatTipoConfirmacion> repoTipoConfirmacion,
+        IRepositoryBase<InterfazPfmCficAsignacione> repoAsignaciones,
         IConfiguration configuration)
     {
         _repoArchivo = repoArchivo;
@@ -50,6 +52,7 @@ public class SeguimientoSolicitudModel : PageModel
         _repoCancelacion = repoCancelacion;
         _repoMotivoRechazo = repoMotivoRechazo;
         _repoTipoConfirmacion = repoTipoConfirmacion;
+        _repoAsignaciones = repoAsignaciones;
         _configuration = configuration;
     }
 
@@ -328,6 +331,24 @@ public class SeguimientoSolicitudModel : PageModel
                     Folio = c.FolioConfirmacionCfic,
                     ArchivoId = archivo?.ArchivoId ?? 0,
                     ArchivoNombre = archivo?.NombreArchivo
+                });
+            }
+
+            // ASIGNACIONES
+
+            var tipoAsignado = CatTipoConfirmacion.First(x => x.CatTipoConfirmacionId == (int)TipoConfirmacion.NotificacionAsignacion);
+
+            var asignados = await _repoAsignaciones.ListAsync(
+                new ConfirmacionRecepcionAsignadosSpec(solicitud.SolicitudPfmcficid, tipoAsignado.CatTipoConfirmacionId));
+
+            foreach (var c in asignados)
+            {
+                movimientos.Add(new MovimientoTablaViewModel
+                {
+                    Tipo = tipoAsignado.Descripcion,
+                    Fecha = c.FechaAltaDelta,
+                    FechaAsignacion = c.FechaAsignacion,
+                    NombreAnalista = c.NombreAnalista,
                 });
             }
         }

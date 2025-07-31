@@ -19,7 +19,7 @@ public partial class InterfazPfmCficRechazo
 
     public bool? Expirado { get; set; }
 
- 
+    public string? UsuarioId { get; set; }
 
     public DateTime? FechaAltaDelta { get; set; }
 
@@ -29,7 +29,6 @@ public partial class InterfazPfmCficRechazo
 
     public virtual InterfazPfmCficSolicitud? SolictudPfmcfic { get; set; }
 }
-
 
 public enum TipoRechazo
 {
