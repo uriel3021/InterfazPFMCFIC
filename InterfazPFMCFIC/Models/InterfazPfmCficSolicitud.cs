@@ -41,6 +41,8 @@ public partial class InterfazPfmCficSolicitud
 
     public bool? Borrado { get; set; }
 
+    public virtual ICollection<InterfazPfmCficAsignacione> InterfazPfmCficAsignaciones { get; set; } = new List<InterfazPfmCficAsignacione>();
+
     public virtual ICollection<InterfazPfmCficCancelacione> InterfazPfmCficCancelaciones { get; set; } = new List<InterfazPfmCficCancelacione>();
 
     public virtual ICollection<InterfazPfmCficConfirmacionEnvio> InterfazPfmCficConfirmacionEnvios { get; set; } = new List<InterfazPfmCficConfirmacionEnvio>();
@@ -59,5 +61,5 @@ public enum TipoConfirmacion
     InformeTotal = 2,
     Cancelacion = 4,
     Actualizacion = 6,
-    NotificacionAsignacion =3
+    NotificacionAsignacion = 3
 }

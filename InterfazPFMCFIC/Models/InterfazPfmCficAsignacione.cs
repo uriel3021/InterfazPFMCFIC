@@ -21,6 +21,5 @@ public partial class InterfazPfmCficAsignacione
 
     public bool Borrado { get; set; }
 
-    // Propiedad de navegación para la solicitud
-    public virtual InterfazPfmCficSolicitud? SolicitudPfmcfic { get; set; }
+    public virtual InterfazPfmCficSolicitud SolicitudPfmcfic { get; set; } = null!;
 }
