@@ -61,5 +61,6 @@ public enum TipoConfirmacion
     InformeTotal = 2,
     Cancelacion = 4,
     Actualizacion = 6,
-    NotificacionAsignacion = 3
+    NotificacionAsignacion = 3,
+    Autoaceptacion = 14
 }

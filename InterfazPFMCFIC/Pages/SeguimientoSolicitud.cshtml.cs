@@ -218,7 +218,7 @@ public class SeguimientoSolicitudModel : PageModel
             var tipoRechazo = CatTipoConfirmacion.First(x => x.CatTipoConfirmacionId == (int)TipoConfirmacion.Rechazo);
 
             var rechazos = await _repoRechazo.ListAsync(
-                new RechazoSpecification(solicitud.SolicitudPfmcficid));
+                new RechazoSpecification(solicitud.SolicitudPfmcficid, tipoRechazo.CatTipoConfirmacionId));
 
             foreach (var r in rechazos)
             {
@@ -351,6 +351,27 @@ public class SeguimientoSolicitudModel : PageModel
                     NombreAnalista = c.NombreAnalista,
                 });
             }
+
+            // AUTO ACEPTACION
+
+            var tipoAutoaceptacion = CatTipoConfirmacion.First(x => x.CatTipoConfirmacionId == (int)TipoConfirmacion.Autoaceptacion);
+
+            var autoAceptados = await _repoConfirmacionRecepcion.ListAsync(
+                new ConfirmacionRecepcionAutoAceptadosSpec(solicitud.SolicitudPfmcficid, tipoAutoaceptacion.CatTipoConfirmacionId));
+
+            foreach (var c in autoAceptados)
+            {
+                movimientos.Add(new MovimientoTablaViewModel
+                {
+                    Tipo = tipoAutoaceptacion.Descripcion,
+                    Fecha = c.FechaRegistro,
+                    Folio = c.FolioConfirmacionPfm,
+                    ArchivoId = 0,
+                    ArchivoNombre = null
+                });
+            }
+
+
         }
         Movimientos = movimientos
          .OrderBy(m => m.Fecha)

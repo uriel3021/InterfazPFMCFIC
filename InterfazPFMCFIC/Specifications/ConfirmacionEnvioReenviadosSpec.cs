@@ -6,6 +6,8 @@ public class ConfirmacionEnvioReenviadosSpec : Specification<InterfazPfmCficConf
 {
     public ConfirmacionEnvioReenviadosSpec(int solicitudPfmcficid, int tipoReenviadoId)
     {
-        Query.Where(x => x.SolictudPfmcficid == solicitudPfmcficid && x.TipoConfirmacion == tipoReenviadoId);
+        Query.Where(x => x.SolictudPfmcficid == solicitudPfmcficid 
+        && x.TipoConfirmacion == tipoReenviadoId
+        && x.CodigoRetorno == 1);
     }
 }
