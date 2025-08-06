@@ -253,7 +253,7 @@ public class SeguimientoSolicitudModel : PageModel
             {
                 // Obtener el ProductoRecibidoId relacionado a la solicitud 
                 var productoRecibido = await _repoProductoRecibido.FirstOrDefaultAsync(
-                new ProductoRecibidoPorSolicitudIdSpec(solicitud.SolicitudPfmcficid)
+                new ProductoRecibidoPorSolicitudIdSpec(solicitud.SolicitudPfmcficid, tipoAtendidoParcial.CatTipoConfirmacionId)
                 );
 
                 int productoRecibidoId = productoRecibido?.ProductoRecibidoId ?? 0;
@@ -283,7 +283,7 @@ public class SeguimientoSolicitudModel : PageModel
             {
                 // Obtener el ProductoRecibidoId relacionado a la solicitud 
                 var productoRecibido = await _repoProductoRecibido.FirstOrDefaultAsync(
-                new ProductoRecibidoPorSolicitudIdSpec(solicitud.SolicitudPfmcficid)
+                new ProductoRecibidoPorSolicitudIdSpec(solicitud.SolicitudPfmcficid, tipoAtendidoTotal.CatTipoConfirmacionId)
                 );
 
                 int productoRecibidoId = productoRecibido?.ProductoRecibidoId ?? 0;

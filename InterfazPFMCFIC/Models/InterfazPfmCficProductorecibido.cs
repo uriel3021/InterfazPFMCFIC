@@ -22,4 +22,8 @@ public partial class InterfazPfmCficProductorecibido
     public DateTime? FechaActualizacionDelta { get; set; }
 
     public bool? Borrado { get; set; }
+
+    // Nueva relación
+    public int CatTipoConfirmacionId { get; set; }
+    public virtual InterfazPfmCficCatTipoConfirmacion CatTipoConfirmacion { get; set; } = null!;
 }

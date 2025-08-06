@@ -24,4 +24,8 @@ public partial class InterfazPfmCficArchivo
     public DateTime? FechaAltaDelta { get; set; }
 
     public DateTime? FechaActualizacionDelta { get; set; }
+
+    // Relación con solicitud
+    public int SolicitudPfmcficid { get; set; }
+    public virtual InterfazPfmCficSolicitud SolicitudPfmcfic { get; set; } = null!;
 }

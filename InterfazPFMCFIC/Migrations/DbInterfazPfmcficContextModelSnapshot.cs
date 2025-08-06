@@ -62,6 +62,10 @@ namespace InterfazPFMCFIC.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(500)");
 
+                    b.Property<int>("SolicitudPfmcficid")
+                        .HasColumnType("int")
+                        .HasColumnName("SolicitudPFMCFICID");
+
                     b.Property<string>("UsuarioId")
                         .HasMaxLength(50)
                         .IsUnicode(false)
@@ -69,11 +73,57 @@ namespace InterfazPFMCFIC.Migrations
                         .HasColumnName("UsuarioID");
 
                     b.HasKey("ArchivoId")
-                        .HasName("PK__INTERFAZ__3D24276A7FD7C9C3");
+                        .HasName("PK__INTERFAZ__3D24276A44B7D9CB");
 
                     SqlServerKeyBuilderExtensions.HasFillFactor(b.HasKey("ArchivoId"), 80);
 
+                    b.HasIndex("SolicitudPfmcficid");
+
                     b.ToTable("INTERFAZ_PFM_CFIC_ARCHIVO", (string)null);
+                });
+
+            modelBuilder.Entity("InterfazPFMCFIC.Models.InterfazPfmCficAsignacione", b =>
+                {
+                    b.Property<int>("AsignacionPfmcficid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("AsignacionPFMCFICID");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AsignacionPfmcficid"));
+
+                    b.Property<bool>("Borrado")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("FechaActualizacionDelta")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime>("FechaAltaDelta")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime>("FechaAsignacion")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("NombreAnalista")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(250)");
+
+                    b.Property<int>("PersonalId")
+                        .HasColumnType("int")
+                        .HasColumnName("PersonalID");
+
+                    b.Property<int>("SolicitudPfmcficid")
+                        .HasColumnType("int")
+                        .HasColumnName("SolicitudPFMCFICID");
+
+                    b.HasKey("AsignacionPfmcficid");
+
+                    SqlServerKeyBuilderExtensions.HasFillFactor(b.HasKey("AsignacionPfmcficid"), 80);
+
+                    b.HasIndex("SolicitudPfmcficid");
+
+                    b.ToTable("INTERFAZ_PFM_CFIC_ASIGNACIONES", (string)null);
                 });
 
             modelBuilder.Entity("InterfazPFMCFIC.Models.InterfazPfmCficCancelacione", b =>
@@ -111,7 +161,7 @@ namespace InterfazPFMCFIC.Migrations
                         .HasColumnName("UsuarioID");
 
                     b.HasKey("CancelacionId")
-                        .HasName("PK__INTERFAZ__5A8447EE5E201ADC");
+                        .HasName("PK__INTERFAZ__5A8447EE1A3F0D30");
 
                     SqlServerKeyBuilderExtensions.HasFillFactor(b.HasKey("CancelacionId"), 80);
 
@@ -293,7 +343,7 @@ namespace InterfazPFMCFIC.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("ConfirmacionId")
-                        .HasName("PK__INTERFAZ__637503903EAD6EE9");
+                        .HasName("PK__INTERFAZ__63750390224A321B");
 
                     SqlServerKeyBuilderExtensions.HasFillFactor(b.HasKey("ConfirmacionId"), 80);
 
@@ -341,7 +391,7 @@ namespace InterfazPFMCFIC.Migrations
                         .HasColumnName("UsuarioID");
 
                     b.HasKey("PlantillaId")
-                        .HasName("PK__INTERFAZ__C5DEB58C9A287233");
+                        .HasName("PK__INTERFAZ__C5DEB58C4CAA4906");
 
                     SqlServerKeyBuilderExtensions.HasFillFactor(b.HasKey("PlantillaId"), 80);
 
@@ -359,6 +409,10 @@ namespace InterfazPFMCFIC.Migrations
 
                     b.Property<bool?>("Borrado")
                         .HasColumnType("bit");
+
+                    b.Property<int>("CatTipoConfirmacionId")
+                        .HasColumnType("int")
+                        .HasColumnName("CatTipoConfirmacionID");
 
                     b.Property<DateTime?>("FechaActualizacionDelta")
                         .HasColumnType("datetime");
@@ -389,6 +443,8 @@ namespace InterfazPFMCFIC.Migrations
                     b.HasKey("ProductoRecibidoId");
 
                     SqlServerKeyBuilderExtensions.HasFillFactor(b.HasKey("ProductoRecibidoId"), 80);
+
+                    b.HasIndex("CatTipoConfirmacionId");
 
                     b.ToTable("INTERFAZ_PFM_CFIC_PRODUCTORECIBIDO", (string)null);
                 });
@@ -435,7 +491,7 @@ namespace InterfazPFMCFIC.Migrations
                         .HasColumnName("TipoRechazoID");
 
                     b.HasKey("RechazoId")
-                        .HasName("PK__INTERFAZ__EEE56439E97E3F10");
+                        .HasName("PK__INTERFAZ__EEE5643914A0E9D3");
 
                     SqlServerKeyBuilderExtensions.HasFillFactor(b.HasKey("RechazoId"), 80);
 
@@ -519,7 +575,7 @@ namespace InterfazPFMCFIC.Migrations
                         .HasColumnName("UsuarioID");
 
                     b.HasKey("SolicitudPfmcficid")
-                        .HasName("PK__INTERFAZ__3411BB0B5B5A8B25");
+                        .HasName("PK__INTERFAZ__3411BB0B2A8802C3");
 
                     SqlServerKeyBuilderExtensions.HasFillFactor(b.HasKey("SolicitudPfmcficid"), 80);
 
@@ -562,7 +618,7 @@ namespace InterfazPFMCFIC.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("ConfirmacionId")
-                        .HasName("PK__INTERFAZ__6375039090C53A46");
+                        .HasName("PK__INTERFAZ__6375039015629D65");
 
                     SqlServerKeyBuilderExtensions.HasFillFactor(b.HasKey("ConfirmacionId"), 80);
 
@@ -608,6 +664,29 @@ namespace InterfazPFMCFIC.Migrations
                     b.ToTable("MotivoRechazo", (string)null);
                 });
 
+            modelBuilder.Entity("InterfazPFMCFIC.Models.InterfazPfmCficArchivo", b =>
+                {
+                    b.HasOne("InterfazPFMCFIC.Models.InterfazPfmCficSolicitud", "SolicitudPfmcfic")
+                        .WithMany()
+                        .HasForeignKey("SolicitudPfmcficid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_INTERFAZ_PFM_CFIC_ARCHIVO_SOLICITUD");
+
+                    b.Navigation("SolicitudPfmcfic");
+                });
+
+            modelBuilder.Entity("InterfazPFMCFIC.Models.InterfazPfmCficAsignacione", b =>
+                {
+                    b.HasOne("InterfazPFMCFIC.Models.InterfazPfmCficSolicitud", "SolicitudPfmcfic")
+                        .WithMany("InterfazPfmCficAsignaciones")
+                        .HasForeignKey("SolicitudPfmcficid")
+                        .IsRequired()
+                        .HasConstraintName("FK_INTERFAZ_PFM_CFIC_ASIGNACIONES_SOLICITUD");
+
+                    b.Navigation("SolicitudPfmcfic");
+                });
+
             modelBuilder.Entity("InterfazPFMCFIC.Models.InterfazPfmCficCancelacione", b =>
                 {
                     b.HasOne("InterfazPFMCFIC.Models.InterfazPfmCficSolicitud", "SolictudPfmcfic")
@@ -626,6 +705,18 @@ namespace InterfazPFMCFIC.Migrations
                         .HasConstraintName("FK_INTERFAZ_PFM_CFIC_CONFIRMACION_ENVIO_INTERFAZ_PFM_CFIC_SOLICITUD");
 
                     b.Navigation("SolictudPfmcfic");
+                });
+
+            modelBuilder.Entity("InterfazPFMCFIC.Models.InterfazPfmCficProductorecibido", b =>
+                {
+                    b.HasOne("InterfazPFMCFIC.Models.InterfazPfmCficCatTipoConfirmacion", "CatTipoConfirmacion")
+                        .WithMany()
+                        .HasForeignKey("CatTipoConfirmacionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_INTERFAZ_PFM_CFIC_PRODUCTORECIBIDO_TIPO_CONFIRMACION");
+
+                    b.Navigation("CatTipoConfirmacion");
                 });
 
             modelBuilder.Entity("InterfazPFMCFIC.Models.InterfazPfmCficRechazo", b =>
@@ -650,6 +741,8 @@ namespace InterfazPFMCFIC.Migrations
 
             modelBuilder.Entity("InterfazPFMCFIC.Models.InterfazPfmCficSolicitud", b =>
                 {
+                    b.Navigation("InterfazPfmCficAsignaciones");
+
                     b.Navigation("InterfazPfmCficCancelaciones");
 
                     b.Navigation("InterfazPfmCficConfirmacionEnvios");

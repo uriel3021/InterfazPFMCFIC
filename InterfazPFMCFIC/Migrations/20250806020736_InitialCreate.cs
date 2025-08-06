@@ -12,28 +12,6 @@ namespace InterfazPFMCFIC.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "INTERFAZ_PFM_CFIC_ARCHIVO",
-                columns: table => new
-                {
-                    ArchivoID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ProcesoID = table.Column<int>(type: "int", nullable: true),
-                    RegistroID = table.Column<int>(type: "int", nullable: true),
-                    Ruta = table.Column<string>(type: "varchar(500)", unicode: false, maxLength: 500, nullable: true),
-                    NombreArchivo = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
-                    PesoArchivoKB = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    Borrado = table.Column<bool>(type: "bit", nullable: true),
-                    UsuarioID = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: true),
-                    FechaAltaDelta = table.Column<DateTime>(type: "datetime", nullable: true),
-                    FechaActualizacionDelta = table.Column<DateTime>(type: "datetime", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK__INTERFAZ__3D24276A7FD7C9C3", x => x.ArchivoID)
-                        .Annotation("SqlServer:FillFactor", 80);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "INTERFAZ_PFM_CFIC_CatCodigoRetorno",
                 columns: table => new
                 {
@@ -123,28 +101,7 @@ namespace InterfazPFMCFIC.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK__INTERFAZ__C5DEB58C9A287233", x => x.PlantillaID)
-                        .Annotation("SqlServer:FillFactor", 80);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "INTERFAZ_PFM_CFIC_PRODUCTORECIBIDO",
-                columns: table => new
-                {
-                    ProductoRecibidoID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    SolicitudPFMCFICID = table.Column<int>(type: "int", nullable: false),
-                    GeneralesAntecedentesID = table.Column<int>(type: "int", nullable: false),
-                    FechaProducto = table.Column<DateTime>(type: "datetime", nullable: true),
-                    TipoProducto = table.Column<short>(type: "smallint", nullable: true),
-                    UsuarioID = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: true),
-                    FechaAltaDelta = table.Column<DateTime>(type: "datetime", nullable: true),
-                    FechaActualizacionDelta = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Borrado = table.Column<bool>(type: "bit", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_INTERFAZ_PFM_CFIC_PRODUCTORECIBIDO", x => x.ProductoRecibidoID)
+                    table.PrimaryKey("PK__INTERFAZ__C5DEB58C4CAA4906", x => x.PlantillaID)
                         .Annotation("SqlServer:FillFactor", 80);
                 });
 
@@ -174,7 +131,7 @@ namespace InterfazPFMCFIC.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK__INTERFAZ__3411BB0B5B5A8B25", x => x.SolicitudPFMCFICID)
+                    table.PrimaryKey("PK__INTERFAZ__3411BB0B2A8802C3", x => x.SolicitudPFMCFICID)
                         .Annotation("SqlServer:FillFactor", 80);
                 });
 
@@ -197,6 +154,88 @@ namespace InterfazPFMCFIC.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "INTERFAZ_PFM_CFIC_PRODUCTORECIBIDO",
+                columns: table => new
+                {
+                    ProductoRecibidoID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SolicitudPFMCFICID = table.Column<int>(type: "int", nullable: false),
+                    GeneralesAntecedentesID = table.Column<int>(type: "int", nullable: false),
+                    FechaProducto = table.Column<DateTime>(type: "datetime", nullable: true),
+                    TipoProducto = table.Column<short>(type: "smallint", nullable: true),
+                    UsuarioID = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: true),
+                    FechaAltaDelta = table.Column<DateTime>(type: "datetime", nullable: true),
+                    FechaActualizacionDelta = table.Column<DateTime>(type: "datetime", nullable: true),
+                    Borrado = table.Column<bool>(type: "bit", nullable: true),
+                    CatTipoConfirmacionID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_INTERFAZ_PFM_CFIC_PRODUCTORECIBIDO", x => x.ProductoRecibidoID)
+                        .Annotation("SqlServer:FillFactor", 80);
+                    table.ForeignKey(
+                        name: "FK_INTERFAZ_PFM_CFIC_PRODUCTORECIBIDO_TIPO_CONFIRMACION",
+                        column: x => x.CatTipoConfirmacionID,
+                        principalTable: "INTERFAZ_PFM_CFIC_CatTipoConfirmacion",
+                        principalColumn: "CatTipoConfirmacionID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "INTERFAZ_PFM_CFIC_ARCHIVO",
+                columns: table => new
+                {
+                    ArchivoID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProcesoID = table.Column<int>(type: "int", nullable: true),
+                    RegistroID = table.Column<int>(type: "int", nullable: true),
+                    Ruta = table.Column<string>(type: "varchar(500)", unicode: false, maxLength: 500, nullable: true),
+                    NombreArchivo = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
+                    PesoArchivoKB = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    Borrado = table.Column<bool>(type: "bit", nullable: true),
+                    UsuarioID = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: true),
+                    FechaAltaDelta = table.Column<DateTime>(type: "datetime", nullable: true),
+                    FechaActualizacionDelta = table.Column<DateTime>(type: "datetime", nullable: true),
+                    SolicitudPFMCFICID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK__INTERFAZ__3D24276A44B7D9CB", x => x.ArchivoID)
+                        .Annotation("SqlServer:FillFactor", 80);
+                    table.ForeignKey(
+                        name: "FK_INTERFAZ_PFM_CFIC_ARCHIVO_SOLICITUD",
+                        column: x => x.SolicitudPFMCFICID,
+                        principalTable: "INTERFAZ_PFM_CFIC_SOLICITUD",
+                        principalColumn: "SolicitudPFMCFICID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "INTERFAZ_PFM_CFIC_ASIGNACIONES",
+                columns: table => new
+                {
+                    AsignacionPFMCFICID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SolicitudPFMCFICID = table.Column<int>(type: "int", nullable: false),
+                    PersonalID = table.Column<int>(type: "int", nullable: false),
+                    NombreAnalista = table.Column<string>(type: "varchar(250)", unicode: false, maxLength: 250, nullable: false),
+                    FechaAsignacion = table.Column<DateTime>(type: "datetime", nullable: false),
+                    FechaAltaDelta = table.Column<DateTime>(type: "datetime", nullable: false),
+                    FechaActualizacionDelta = table.Column<DateTime>(type: "datetime", nullable: false),
+                    Borrado = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_INTERFAZ_PFM_CFIC_ASIGNACIONES", x => x.AsignacionPFMCFICID)
+                        .Annotation("SqlServer:FillFactor", 80);
+                    table.ForeignKey(
+                        name: "FK_INTERFAZ_PFM_CFIC_ASIGNACIONES_SOLICITUD",
+                        column: x => x.SolicitudPFMCFICID,
+                        principalTable: "INTERFAZ_PFM_CFIC_SOLICITUD",
+                        principalColumn: "SolicitudPFMCFICID");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "INTERFAZ_PFM_CFIC_CANCELACIONES",
                 columns: table => new
                 {
@@ -212,7 +251,7 @@ namespace InterfazPFMCFIC.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK__INTERFAZ__5A8447EE5E201ADC", x => x.CancelacionID)
+                    table.PrimaryKey("PK__INTERFAZ__5A8447EE1A3F0D30", x => x.CancelacionID)
                         .Annotation("SqlServer:FillFactor", 80);
                     table.ForeignKey(
                         name: "FK_INTERFAZ_PFM_CFIC_CANCELACIONES_INTERFAZ_PFM_CFIC_SOLICITUD",
@@ -236,7 +275,7 @@ namespace InterfazPFMCFIC.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK__INTERFAZ__637503903EAD6EE9", x => x.ConfirmacionID)
+                    table.PrimaryKey("PK__INTERFAZ__63750390224A321B", x => x.ConfirmacionID)
                         .Annotation("SqlServer:FillFactor", 80);
                     table.ForeignKey(
                         name: "FK_INTERFAZ_PFM_CFIC_CONFIRMACION_ENVIO_INTERFAZ_PFM_CFIC_SOLICITUD",
@@ -263,7 +302,7 @@ namespace InterfazPFMCFIC.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK__INTERFAZ__EEE56439E97E3F10", x => x.RechazoID)
+                    table.PrimaryKey("PK__INTERFAZ__EEE5643914A0E9D3", x => x.RechazoID)
                         .Annotation("SqlServer:FillFactor", 80);
                     table.ForeignKey(
                         name: "FK_INTERFAZ_PFM_CFIC_RECHAZOS_INTERFAZ_PFM_CFIC_SOLICITUD",
@@ -288,7 +327,7 @@ namespace InterfazPFMCFIC.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK__INTERFAZ__6375039090C53A46", x => x.ConfirmacionID)
+                    table.PrimaryKey("PK__INTERFAZ__6375039015629D65", x => x.ConfirmacionID)
                         .Annotation("SqlServer:FillFactor", 80);
                     table.ForeignKey(
                         name: "FK_INTERFAZ_PFM_PFM_CFIC_CONFIRMACION_RECEPCION_INTERFAZ_PFM_CFIC_SOLICITUD",
@@ -296,6 +335,16 @@ namespace InterfazPFMCFIC.Migrations
                         principalTable: "INTERFAZ_PFM_CFIC_SOLICITUD",
                         principalColumn: "SolicitudPFMCFICID");
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_INTERFAZ_PFM_CFIC_ARCHIVO_SolicitudPFMCFICID",
+                table: "INTERFAZ_PFM_CFIC_ARCHIVO",
+                column: "SolicitudPFMCFICID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_INTERFAZ_PFM_CFIC_ASIGNACIONES_SolicitudPFMCFICID",
+                table: "INTERFAZ_PFM_CFIC_ASIGNACIONES",
+                column: "SolicitudPFMCFICID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_INTERFAZ_PFM_CFIC_CANCELACIONES_SolictudPFMCFICID",
@@ -306,6 +355,11 @@ namespace InterfazPFMCFIC.Migrations
                 name: "IX_INTERFAZ_PFM_CFIC_CONFIRMACION_ENVIO_SolictudPFMCFICID",
                 table: "INTERFAZ_PFM_CFIC_CONFIRMACION_ENVIO",
                 column: "SolictudPFMCFICID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_INTERFAZ_PFM_CFIC_PRODUCTORECIBIDO_CatTipoConfirmacionID",
+                table: "INTERFAZ_PFM_CFIC_PRODUCTORECIBIDO",
+                column: "CatTipoConfirmacionID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_INTERFAZ_PFM_CFIC_RECHAZOS_SolictudPFMCFICID",
@@ -325,6 +379,9 @@ namespace InterfazPFMCFIC.Migrations
                 name: "INTERFAZ_PFM_CFIC_ARCHIVO");
 
             migrationBuilder.DropTable(
+                name: "INTERFAZ_PFM_CFIC_ASIGNACIONES");
+
+            migrationBuilder.DropTable(
                 name: "INTERFAZ_PFM_CFIC_CANCELACIONES");
 
             migrationBuilder.DropTable(
@@ -332,9 +389,6 @@ namespace InterfazPFMCFIC.Migrations
 
             migrationBuilder.DropTable(
                 name: "INTERFAZ_PFM_CFIC_CatEstatusSolicitud");
-
-            migrationBuilder.DropTable(
-                name: "INTERFAZ_PFM_CFIC_CatTipoConfirmacion");
 
             migrationBuilder.DropTable(
                 name: "INTERFAZ_PFM_CFIC_CatTipoProducto");
@@ -356,6 +410,9 @@ namespace InterfazPFMCFIC.Migrations
 
             migrationBuilder.DropTable(
                 name: "MotivoRechazo");
+
+            migrationBuilder.DropTable(
+                name: "INTERFAZ_PFM_CFIC_CatTipoConfirmacion");
 
             migrationBuilder.DropTable(
                 name: "INTERFAZ_PFM_CFIC_SOLICITUD");

@@ -71,6 +71,12 @@ public partial class DbInterfazPfmcficContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("UsuarioID");
+            // Relación con solicitud
+            entity.Property(e => e.SolicitudPfmcficid).HasColumnName("SolicitudPFMCFICID");
+            entity.HasOne(d => d.SolicitudPfmcfic)
+                .WithMany()
+                .HasForeignKey(d => d.SolicitudPfmcficid)
+                .HasConstraintName("FK_INTERFAZ_PFM_CFIC_ARCHIVO_SOLICITUD");
         });
 
         modelBuilder.Entity<InterfazPfmCficAsignacione>(entity =>
@@ -227,6 +233,12 @@ public partial class DbInterfazPfmcficContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("UsuarioID");
+            // Relación con CatTipoConfirmacion
+            entity.Property(e => e.CatTipoConfirmacionId).HasColumnName("CatTipoConfirmacionID");
+            entity.HasOne(d => d.CatTipoConfirmacion)
+                .WithMany()
+                .HasForeignKey(d => d.CatTipoConfirmacionId)
+                .HasConstraintName("FK_INTERFAZ_PFM_CFIC_PRODUCTORECIBIDO_TIPO_CONFIRMACION");
         });
 
         modelBuilder.Entity<InterfazPfmCficRechazo>(entity =>
@@ -247,11 +259,7 @@ public partial class DbInterfazPfmcficContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.SolictudPfmcficid).HasColumnName("SolictudPFMCFICID");
             entity.Property(e => e.TipoRechazoId).HasColumnName("TipoRechazoID");
-            entity.Property(e => e.UsuarioId)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("UsuarioID");
-
+ 
             entity.HasOne(d => d.SolictudPfmcfic).WithMany(p => p.InterfazPfmCficRechazos)
                 .HasForeignKey(d => d.SolictudPfmcficid)
                 .HasConstraintName("FK_INTERFAZ_PFM_CFIC_RECHAZOS_INTERFAZ_PFM_CFIC_SOLICITUD");
