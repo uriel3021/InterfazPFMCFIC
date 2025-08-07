@@ -15,8 +15,6 @@ public partial class InterfazPfmCficProductorecibido
 
     public short? TipoProducto { get; set; }
 
-    public string? UsuarioId { get; set; }
-
     public DateTime? FechaAltaDelta { get; set; }
 
     public DateTime? FechaActualizacionDelta { get; set; }

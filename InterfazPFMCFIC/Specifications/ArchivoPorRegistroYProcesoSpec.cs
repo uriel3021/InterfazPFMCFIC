@@ -6,6 +6,6 @@ public class ArchivoPorRegistroYProcesoSpec : Specification<InterfazPfmCficArchi
 {
     public ArchivoPorRegistroYProcesoSpec(int registroId, int procesoId)
     {
-        Query.Where(a => a.RegistroId == registroId && a.ProcesoId == procesoId);
+        Query.Where(a => a.RegistroId == registroId && a.CatTipoProcesoId == procesoId);
     }
 }

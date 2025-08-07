@@ -62,7 +62,7 @@ public partial class DbInterfazPfmcficContext : DbContext
             entity.Property(e => e.PesoArchivoKb)
                 .HasColumnType("decimal(18, 2)")
                 .HasColumnName("PesoArchivoKB");
-            entity.Property(e => e.ProcesoId).HasColumnName("ProcesoID");
+            entity.Property(e => e.CatTipoProcesoId).HasColumnName("ProcesoID");
             entity.Property(e => e.RegistroId).HasColumnName("RegistroID");
             entity.Property(e => e.Ruta)
                 .HasMaxLength(500)
@@ -229,10 +229,7 @@ public partial class DbInterfazPfmcficContext : DbContext
             entity.Property(e => e.FechaProducto).HasColumnType("datetime");
             entity.Property(e => e.GeneralesAntecedentesId).HasColumnName("GeneralesAntecedentesID");
             entity.Property(e => e.SolicitudPfmcficid).HasColumnName("SolicitudPFMCFICID");
-            entity.Property(e => e.UsuarioId)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("UsuarioID");
+
             // Relación con CatTipoConfirmacion
             entity.Property(e => e.CatTipoConfirmacionId).HasColumnName("CatTipoConfirmacionID");
             entity.HasOne(d => d.CatTipoConfirmacion)

@@ -65,6 +65,9 @@
                             new { archivoId = mov.ArchivoId, token = Model.Token },
                             Request.Scheme
                         );
+                        bool esAsignacion = mov.Tipo == tipoAsignacion;
+                        bool esAceptado = mov.Tipo == Model.CatTipoConfirmacion.FirstOrDefault(x => x.CatTipoConfirmacionId == (int)TipoConfirmacion.Aceptacion)?.Descripcion;
+                        bool esAutoAceptacion = mov.Tipo == Model.CatTipoConfirmacion.FirstOrDefault(x => x.CatTipoConfirmacionId == (int)TipoConfirmacion.Autoaceptacion)?.Descripcion;
                         <tr data-idx="@i">
                             <td class="text-center">
                                 @if (mov.Tipo == Model.TipoDescripcionRechazado || mov.Tipo == tipoAsignacion)
@@ -79,15 +82,18 @@
                             <td class="text-center">@mov.Fecha?.ToString("dd/MM/yyyy")</td>
                             <td class="text-center">@mov.Folio</td>
                             <td class="text-center">
-                                @if (mov.ArchivoId > 0 && !string.IsNullOrEmpty(mov.ArchivoNombre))
+                                @if (!(esAsignacion || esAceptado || esAutoAceptacion))
                                 {
-                                    <a href="@urlDescarga" target="_blank" title="Descargar PDF">
-                                        <img src="https://localhost:7292/img/file-pdf-solid.svg" alt="PDF" style="width:1em; vertical-align:middle;" />
-                                    </a>
-                                }
-                                else
-                                {
-                                    <img src="https://localhost:7292/img/file-broken-svg.svg" style="width:1em; vertical-align:middle; filter:grayscale(1);" />
+                                    if (mov.ArchivoId > 0 && !string.IsNullOrEmpty(mov.ArchivoNombre))
+                                    {
+                                        <a href="@urlDescarga" target="_blank" title="Descargar PDF">
+                                            <img src="https://localhost:7292/img/file-pdf-solid.svg" alt="PDF" style="width:1em; vertical-align:middle;" />
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <img src="https://localhost:7292/img/file-broken-svg.svg" style="width:1em; vertical-align:middle; filter:grayscale(1);" />
+                                    }
                                 }
                             </td>
                         </tr>

@@ -7,7 +7,7 @@ public partial class InterfazPfmCficArchivo
 {
     public int ArchivoId { get; set; }
 
-    public int? ProcesoId { get; set; }
+    public int? CatTipoProcesoId  { get; set; }
 
     public int? RegistroId { get; set; }
 

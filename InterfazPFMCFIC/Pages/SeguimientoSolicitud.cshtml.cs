@@ -13,7 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-[AllowAnonymous]
+//[AllowAnonymous]
 // <- Con esto deshabilitas por completo el antiforgery para esta página
 [IgnoreAntiforgeryToken]
 public class SeguimientoSolicitudModel : PageModel
@@ -374,7 +374,7 @@ public class SeguimientoSolicitudModel : PageModel
 
         }
         Movimientos = movimientos
-         .OrderBy(m => m.Fecha)
+         .OrderByDescending(m => m.Fecha)
          .ToList();
 
         return Page();
